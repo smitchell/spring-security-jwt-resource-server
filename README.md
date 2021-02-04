@@ -49,4 +49,5 @@ public class MultipleAuthController {
 ```
 
 
-	
+# REFERENCES
+* https://www.baeldung.com/spring-security-multiple-auth-providers	
