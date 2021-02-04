@@ -1,0 +1,28 @@
+version: '3.3'
+
+networks:
+  sample-network:
+    driver: bridge
+
+services:
+  authentication-service:
+    build:
+      context: authentication-service
+    healthcheck:
+      test: "curl --fail --silent localhost:5000/actuator/health | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
+    ports:
+      - 5000:5000
+    restart: always
+    networks:
+      - sample-network
