@@ -14,7 +14,7 @@ spring:
     # you can configure the settings here.
     #
     # urls:
-    #   - ldap://localhost:12345
+    #  - ldap://localhost:12345
     # base: dc=memorynotfound,dc=com
     # username: uid=admin
     # password: secret
@@ -25,6 +25,7 @@ spring:
       ldif: classpath:bootstrap.ldif
       validation:
         enabled: false
+
 management:
   endpoints:
     web:

@@ -50,3 +50,4 @@ public class MultipleAuthController {
 
 # REFERENCES
 * https://www.baeldung.com/spring-security-multiple-auth-providers	
+* https://memorynotfound.com/spring-boot-spring-ldap-integration-testing-example/
