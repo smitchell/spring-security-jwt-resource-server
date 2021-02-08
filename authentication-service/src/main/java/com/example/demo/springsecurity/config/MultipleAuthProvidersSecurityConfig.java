@@ -28,11 +28,11 @@ public class MultipleAuthProvidersSecurityConfig extends WebSecurityConfigurerAd
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.httpBasic()
-                .and()
+        http
                 .authorizeRequests()
-                .antMatchers("/api/**")
-                .authenticated();
+                .anyRequest().fullyAuthenticated()
+                .and()
+                .formLogin();
     }
 
     @Bean
