@@ -49,7 +49,14 @@ cn: employees
 ou: employee
 uniqueMember: uid=john,ou=people,dc=example,dc=com
 
-# Create Groups
+dn: cn=users,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfUniqueNames
+cn: users
+ou: user
+uniqueMember: uid=john,ou=people,dc=example,dc=com
+uniqueMember: uid=jane,ou=people,dc=example,dc=com
+
 dn: cn=customers,ou=groups,dc=example,dc=com
 objectclass: top
 objectclass: groupOfUniqueNames

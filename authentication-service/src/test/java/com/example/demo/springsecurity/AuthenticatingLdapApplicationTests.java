@@ -39,21 +39,21 @@ public class AuthenticatingLdapApplicationTests {
 	@Test
 	public void loginWithValidCustomerUserThenAuthenticated() throws Exception {
 		FormLoginRequestBuilder login = formLogin()
-				.user("john")
+				.user("jane")
 				.password("demoPa55");
 
 		mockMvc.perform(login)
-				.andExpect(authenticated().withUsername("john"));
+				.andExpect(authenticated().withUsername("jane"));
 	}
 
 	@Test
 	public void loginWithValidEmployeeUserThenAuthenticated() throws Exception {
 		FormLoginRequestBuilder login = formLogin()
-			.user("mike")
+			.user("john")
 			.password("demoPa55");
 
 		mockMvc.perform(login)
-			.andExpect(authenticated().withUsername("mike"));
+			.andExpect(authenticated().withUsername("john"));
 	}
 
 	@Test
