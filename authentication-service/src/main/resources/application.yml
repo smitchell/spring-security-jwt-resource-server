@@ -8,23 +8,12 @@ spring:
   profiles:
     active: default
   ldap:
-    # Spring LDAP
-    #
-    # In this example we use an embedded ldap server. When using a real one,
-    # you can configure the settings here.
-    #
-    # urls:
-    #   - ldap://localhost:12345
-    # base: dc=memorynotfound,dc=com
-    # username: uid=admin
-    # password: secret
-
-    # Embedded Spring LDAP
     embedded:
       base-dn: dc=example,dc=com
       ldif: classpath:bootstrap.ldif
       validation:
         enabled: false
+      port: 8389
 management:
   endpoints:
     web:

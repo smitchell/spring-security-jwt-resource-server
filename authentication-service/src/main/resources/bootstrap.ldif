@@ -10,6 +10,11 @@ objectclass: top
 objectclass: organizationalUnit
 ou: groups
 
+dn: ou=subgroups,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: subgroups
+
 dn: ou=people,dc=example,dc=com
 objectclass: top
 objectclass: organizationalUnit
@@ -24,7 +29,7 @@ objectclass: inetOrgPerson
 cn: John Doe
 sn: John
 uid: john
-password: secret
+userPassword: {SSHA}f8uesJ8QIzn/bDUEYqBlaWUopbfA5qKLhiTkMQ==
 
 dn: uid=jane,ou=people,dc=example,dc=com
 objectclass: top
@@ -34,14 +39,21 @@ objectclass: inetOrgPerson
 cn: Jane Doe
 sn: Jane
 uid: jane
-password: secret
+userPassword: {SSHA}f8uesJ8QIzn/bDUEYqBlaWUopbfA5qKLhiTkMQ==
 
 # Create Groups
-dn: cn=external,ou=groups,dc=example,dc=com
+dn: cn=employees,ou=groups,dc=example,dc=com
 objectclass: top
 objectclass: groupOfUniqueNames
-cn: external
-ou: external
+cn: employees
+ou: employee
 uniqueMember: uid=john,ou=people,dc=example,dc=com
+
+# Create Groups
+dn: cn=customers,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfUniqueNames
+cn: customers
+ou: customer
 uniqueMember: uid=jane,ou=people,dc=example,dc=com
 
