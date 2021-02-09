@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MultipleAuthController {
+public class SystemRestController {
 
-    @PreAuthorize("hasRole('ROLE_INTERNAL')")
+    @PreAuthorize("hasRole('ROLE_EMPLOYEE')")
     @GetMapping("/api/message")
     public String getMessage() {
         for (GrantedAuthority authority :
@@ -19,7 +19,7 @@ public class MultipleAuthController {
         return "OK";
     }
 
-    @PreAuthorize("hasRole('ROLE_INTERNAL') or hasRole('ROLE_EXTERNAL')")
+    @PreAuthorize("hasRole('ROLE_INTERNAL') or hasRole('ROLE_CUSTOMER')")
     @GetMapping("/api/member/message")
     public String getMemberMessage() {
         for (GrantedAuthority authority :

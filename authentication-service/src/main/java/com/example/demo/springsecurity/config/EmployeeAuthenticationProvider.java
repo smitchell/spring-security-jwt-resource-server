@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Component
-public class ExternalAuthenticationProvider implements AuthenticationProvider {
+public class EmployeeAuthenticationProvider implements AuthenticationProvider {
 
     private Collection<GrantedAuthority> getAuthorities() {
         final ArrayList<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add((GrantedAuthority) () -> "ROLE_EXTERNAL");
+        grantedAuthorities.add((GrantedAuthority) () -> "ROLE_EMPLOYEE");
         return grantedAuthorities;
     }
 
@@ -25,7 +25,7 @@ public class ExternalAuthenticationProvider implements AuthenticationProvider {
         final String username = auth.getName();
         final String password = auth.getCredentials().toString();
 
-        if ("externalUser".equals(username) && "pass".equals(password)) {
+        if ("mike".equals(username) && "demoPa55".equals(password)) {
             return new UsernamePasswordAuthenticationToken(username, password, getAuthorities());
         } else {
             throw new BadCredentialsException("External system authentication failed");
