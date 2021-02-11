@@ -31,10 +31,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .url("ldap://localhost:8389/dc=example,dc=com")
                 .and()
             .passwordCompare()
-                .passwordEncoder(new LdapShaPasswordEncoder())
+                .passwordEncoder(passwordEncoder())
                 .passwordAttribute("userPassword");
         // @formatter:on
     }
+
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -50,10 +51,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-                .authorizeRequests()
+            .authorizeRequests()
                 .antMatchers("/").permitAll()
-//                .antMatchers("/api/employee/**").hasAnyRole("EMPLOYEE")
-//                .antMatchers("/api/member/**").hasAnyRole("CUSTOMER")
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
