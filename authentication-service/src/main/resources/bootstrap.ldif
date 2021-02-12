@@ -29,7 +29,7 @@ objectclass: inetOrgPerson
 cn: John Doe
 sn: John
 uid: john
-userPassword: {SSHA}f8uesJ8QIzn/bDUEYqBlaWUopbfA5qKLhiTkMQ==
+userPassword: {SSHA}kYUFiVH/ThYh/UmE1Wc8gXAjboCIvuAe9E2jvw==
 
 dn: uid=jane,ou=people,dc=example,dc=com
 objectclass: top
@@ -39,7 +39,7 @@ objectclass: inetOrgPerson
 cn: Jane Doe
 sn: Jane
 uid: jane
-userPassword: {SSHA}f8uesJ8QIzn/bDUEYqBlaWUopbfA5qKLhiTkMQ==
+userPassword: {SSHA}kYUFiVH/ThYh/UmE1Wc8gXAjboCIvuAe9E2jvw==
 
 # Create Groups
 dn: cn=employees,ou=groups,dc=example,dc=com
@@ -49,7 +49,14 @@ cn: employees
 ou: employee
 uniqueMember: uid=john,ou=people,dc=example,dc=com
 
-# Create Groups
+dn: cn=users,ou=groups,dc=example,dc=com
+objectclass: top
+objectclass: groupOfUniqueNames
+cn: users
+ou: user
+uniqueMember: uid=john,ou=people,dc=example,dc=com
+uniqueMember: uid=jane,ou=people,dc=example,dc=com
+
 dn: cn=customers,ou=groups,dc=example,dc=com
 objectclass: top
 objectclass: groupOfUniqueNames

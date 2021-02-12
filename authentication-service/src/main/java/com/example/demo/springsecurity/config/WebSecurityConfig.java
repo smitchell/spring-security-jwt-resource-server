@@ -1,59 +1,68 @@
 package com.example.demo.springsecurity.config;
 
+import com.example.demo.springsecurity.filter.JwtAuthenticationFilter;
+import com.example.demo.springsecurity.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@Order(-10)
 @Configuration
-@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-//    @Autowired
-//    CustomerAuthenticationProvider customerAuthenticationProvider;
+    private final String privateKey;
 
     @Autowired
-    EmployeeAuthenticationProvider employeeAuthenticationProvider;
+    public WebSecurityConfig(
+            @Value("${keypair.private-key}") final String privateKey) {
+        this.privateKey = privateKey;
+    }
+
 
     @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.authenticationProvider(customerAuthenticationProvider);
-        auth.authenticationProvider(employeeAuthenticationProvider);
-        // @formatter:off
-        auth
-                .ldapAuthentication()
-                .userDnPatterns("uid={0},ou=people")
-                .userSearchBase("ou=people")
-                .userSearchFilter("uid={0}")
-                .groupSearchBase("ou=groups")
-                .groupSearchFilter("uniqueMember={0}")
-                .contextSource()
-                .url("ldap://localhost:8389/dc=example,dc=com")
-                .and()
-                .passwordCompare()
-                .passwordEncoder(new LdapShaPasswordEncoder())
-                .passwordAttribute("userPassword");
-        // @formatter:on
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(
+                "/webjars/**",
+                "/css/**",
+                "/images/**",
+                "/favicon.ico");
     }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .authorizeRequests()
-                .anyRequest().fullyAuthenticated()
+            .requestMatchers()
+                .antMatchers("/",  "/oauth", "/login",  "/api/authenticate", "/oauth/authorize")
                 .and()
-            .formLogin();
+            .authorizeRequests()
+                .antMatchers("/").permitAll()
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+            .logout()
+                .logoutSuccessUrl("/api/customer/message")
+                .permitAll()
+                .and()
+            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
+            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
         // @formatter:on
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new LdapShaPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 }
-
