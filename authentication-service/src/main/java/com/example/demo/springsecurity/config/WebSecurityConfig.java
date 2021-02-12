@@ -1,39 +1,28 @@
 package com.example.demo.springsecurity.config;
 
+import com.example.demo.springsecurity.filter.JwtAuthenticationFilter;
+import com.example.demo.springsecurity.filter.JwtAuthorizationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.LdapShaPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.AccessDeniedHandler;
 
+@Order(-10)
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final String privateKey;
 
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // @formatter:off
-        auth
-            .ldapAuthentication()
-                .userDnPatterns("uid={0},ou=people")
-                .userSearchBase("ou=people")
-                .userSearchFilter("uid={0}")
-                .groupSearchBase("ou=groups")
-                .groupSearchFilter("uniqueMember={0}")
-                .groupRoleAttribute("ou")
-            .contextSource()
-                .url("ldap://localhost:8389/dc=example,dc=com")
-                .and()
-            .passwordCompare()
-                .passwordEncoder(passwordEncoder())
-                .passwordAttribute("userPassword");
-        // @formatter:on
+    @Autowired
+    public WebSecurityConfig(
+            @Value("${keypair.private-key}") final String privateKey) {
+        this.privateKey = privateKey;
     }
 
 
@@ -51,6 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+            .requestMatchers()
+                .antMatchers("/",  "/oauth", "/login",  "/api/authenticate", "/oauth/authorize")
+                .and()
             .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .anyRequest().authenticated()
@@ -61,14 +53,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .logout()
                 .logoutSuccessUrl("/api/customer/message")
-                .permitAll();
+                .permitAll()
+                .and()
+            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
+            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
         // @formatter:on
     }
 
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new LdapShaPasswordEncoder();
+        return new BCryptPasswordEncoder();
     }
 }
-
