@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
             .logout()
-                .logoutSuccessUrl("/api/customer/message")
+                .logoutSuccessUrl("http://localhost:9001")
                 .permitAll()
                 .and()
             .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
