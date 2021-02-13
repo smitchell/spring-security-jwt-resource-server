@@ -15,7 +15,6 @@ public class WebMvcSecurityConfig implements WebMvcConfigurer {
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/login").setViewName("login");
-        registry.addViewController("/error/403").setViewName("403");
     }
 
     @Bean
