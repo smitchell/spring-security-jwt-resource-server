@@ -19,6 +19,9 @@ import { FooterComponent } from './components/footer/footer.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {BasicAuthHttpInterceptor} from './interceptors/basic-auth-http.interceptor';
 import {MatInputModule} from '@angular/material/input';
+import {CanDeactivateGuard} from './directives/can-component-deactivate';
+import {TokenInterceptor} from './components/auth/token.interceptor';
+import { AuthorizedComponent } from './pages/authorized/authorized.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +30,8 @@ import {MatInputModule} from '@angular/material/input';
     LoginComponent,
     LogoutComponent,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    AuthorizedComponent
   ],
   imports: [
     AppRoutingModule,
@@ -46,7 +50,10 @@ import {MatInputModule} from '@angular/material/input';
     MatProgressSpinnerModule,
     FormsModule
   ],
-  providers: [ { provide: HTTP_INTERCEPTORS, useClass: BasicAuthHttpInterceptor, multi: true }],
+  providers: [
+    CanDeactivateGuard,
+    { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

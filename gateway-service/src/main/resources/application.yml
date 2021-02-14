@@ -1,1 +1,15 @@
+---
+server:
+  port: 5001
 
+logging:
+  level:
+    ROOT: ERROR
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

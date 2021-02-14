@@ -135,7 +135,7 @@ public class AuthenticatingLdapApplicationTests {
                 .params(form).with(csrf()))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isFound())
-                .andExpect(redirectedUrl("/"))
+                .andExpect(redirectedUrl("http://localhost:4200/authorized"))
                 .andReturn();
     }
 

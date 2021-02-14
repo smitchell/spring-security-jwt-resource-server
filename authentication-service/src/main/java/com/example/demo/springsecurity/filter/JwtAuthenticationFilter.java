@@ -45,7 +45,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain filterChain, Authentication authentication) {
-        log.debug("successfulAuthentication <--- " + authentication.getPrincipal());
         var user = ((User) authentication.getPrincipal());
 
         var roles = user.getAuthorities()
