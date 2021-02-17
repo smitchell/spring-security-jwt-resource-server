@@ -49,7 +49,7 @@ export class AuthorizedComponent implements OnInit {
     const params = {authorizationCode: this.code};
     console.log('calling apiService.authenticateGet');
 
-    this.apiService.exchangeTokenGet(params).subscribe(
+    this.apiService.apiExchangeTokenGet$Response(params).subscribe(
       success => this.handleUserData(success),
       error => this.handleError(error)
     );
