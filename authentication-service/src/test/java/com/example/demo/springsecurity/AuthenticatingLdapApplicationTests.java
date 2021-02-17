@@ -100,21 +100,21 @@ public class AuthenticatingLdapApplicationTests {
     }
 
 
-    @Test
-    public void oauthToken() throws Exception {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "password");
-        params.add("client_id", "dummy-client");
-        params.add("client_secret", "client-secret");
-        params.add("username", USER_NAME);
-        params.add("password", PASSWORD);
-
-        MvcResult result = mockMvc.perform(post("/oauth/token")
-                .with(httpBasic("dummy-client", "client-secret"))
-                .params(params))
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
-    }
+//    @Test
+//    public void oauthToken() throws Exception {
+//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+//        params.add("grant_type", "password");
+//        params.add("client_id", "dummy-client");
+//        params.add("client_secret", "client-secret");
+//        params.add("username", USER_NAME);
+//        params.add("password", PASSWORD);
+//
+//        MvcResult result = mockMvc.perform(post("/oauth/token")
+//                .with(httpBasic("dummy-client", "client-secret"))
+//                .params(params))
+//                .andExpect(status().is2xxSuccessful())
+//                .andReturn();
+//    }
 
     @Test
     public void authorizationRedirects() throws Exception {

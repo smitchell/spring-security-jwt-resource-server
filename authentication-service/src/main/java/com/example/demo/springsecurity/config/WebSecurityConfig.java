@@ -18,14 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Order(-10)
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final String privateKey;
-
-    @Autowired
-    public WebSecurityConfig(
-            @Value("${keypair.private-key}") final String privateKey) {
-        this.privateKey = privateKey;
-    }
-
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -42,10 +34,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .requestMatchers()
-                .antMatchers("/",  "/oauth", "/login",  "/api/authenticate", "/oauth/authorize")
+                .antMatchers("/",  "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**")
                 .and()
             .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/actuator/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
@@ -55,12 +47,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
             .logout()
                 .logoutSuccessUrl("http://localhost:4200/")
-                .permitAll()
-                .and()
-            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
-            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
+                .permitAll();
+//                .and()
+//            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
+//            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
 //            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // @formatter:on
+
     }
 
 

@@ -1,0 +1,3640 @@
+openapi: 3.0.0
+info:
+  title: Gateway Service
+  description: REST API façade for the backend services
+  version: 1.0.0
+
+servers:
+  - url: https://idm-gateway.dev.isrm.chs.net
+    description: Development
+  - url: https://idm-gateway.prod.isrm.chs.net
+    description: Produciton
+  - url: http://idm-gateway:5000
+    description: Local testing
+
+paths:
+
+  /api/gateway/health_check:
+    get:
+      description: Health check to retrun static content
+      summary: Includes asynchronous support for testing Actions.
+      parameters:
+        - in: query
+          name: action_status
+          description: Only valid in combination with asynchronous = true
+          required: false
+          schema:
+            type: string
+            enum:
+              - SUBMITTED
+              - DRAFT
+            default: SUBMITTED
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+
+  /api/ad/health_check:
+    get:
+      description: Active Directory Service health check to retrun static content
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /api/idm_tool/health_check:
+    get:
+      description: IDM Tool Service check to retrun static content
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /api/netiq/health_check:
+    get:
+      description: NetIQ Service check to retrun static content
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /api/ultipro/health_check:
+    get:
+      description: UltiPro Service check to retrun static content
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /api/security/login_url:
+    get:
+      description: Generates the url for OpenId Connect login URL
+      parameters:
+        - in: query
+          name: callback_url
+          required: true
+          description: The callback URL after authentication
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/security/health_check:
+    get:
+      description: Security Service check to retrun static content
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+
+  /api/security/token:
+    post:
+      description: Exchange auth code for tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  type: string
+                  description: OAuth2 authorization code
+                  required: true
+                callback_url:
+                  type: string
+                  description: The callback URL after authentication
+                  required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2Tokens'
+        400:
+          description: Missing Authorization code
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Invalid authorization code
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/security/refresh_token:
+    post:
+      description: Exchange refresh token for tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  description: OAuth2 authorization code
+                  required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuth2Tokens'
+        400:
+          description: Missing refresh token
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Invalid refresh token
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/security/user_info:
+    get:
+      description: Returns the user info
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        400:
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/token_introspection:
+    get:
+      description: Validates with introspection
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+        400:
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/verify_token:
+    post:
+      description: Validates with using keys
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                token:
+                  type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+        400:
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          description: Invalid token
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Token verification error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/security/revoke_token:
+    get:
+      description: Revokes the token
+      security:
+        - bearerAuth: [ ]
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/action/{action_id}:
+    get:
+      description: Returns the action by its id
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: action_id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Action'
+        404:
+          description: NOT FOUND
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+    delete:
+      summary: Deletes a action by action_id.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: action_id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/draft-action/{action_id}:
+    put:
+      description: Submits a DRAFT action as submitted.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: action_id
+          schema:
+            type: string
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Action'
+      responses:
+        200:
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: BAD REQUEST
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/actions:
+    get:
+      description: Returns the list of actions
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actions'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/user/{cn}/actions:
+    get:
+      description: Returns the list of user actions
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+            required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableActions'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/user/{cn}/events:
+    get:
+      description: Returns the list of user events
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+            required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: true
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableIdmToolEvents'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/user/{cn}/actions-by-status/{status}:
+    get:
+      description: Returns the list of user actions
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+            required: true
+        - in: path
+          name: status
+          schema:
+            type: string
+            required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Actions'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ad/direct-report-names:
+    get:
+      summary: Returns a list of direct report CNs for a given manager CN
+      description: Writen for the IDM page, this endpoint expects a CN from NetIQ that is used to lookup the manger's distinguishedName in AD which is then used to look-up direct report CNs by the "manager" attribute.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: server_name
+          schema:
+            type: string
+            enum:
+              - US
+              - HMA
+          required: false
+          description: The name of the server, e.g. US, HMA, mocked
+        - in: query
+          name: manager_cn
+          schema:
+            type: string
+          required: true
+          description: Manager's NetIQ cn which should match the manager's CN in AD.
+          example: 'mary.smith'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: manager_cn was missing.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /api/ad/entry/{distinguished_name}:
+    get:
+      summary: Lookup an entry in Active Directory by DN
+      description: Given a distinguished name, returns an entry
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: server_name
+          description: Name of the Active Directory Server
+          schema:
+            type: string
+            enum:
+              - US
+              - HMA
+          required: false
+        - in: path
+          name: distinguished_name
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the entry to get
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: LDAP returned true.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/ad/search_users:
+    post:
+      description: A simplified way to search for users.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: server_name
+          schema:
+            type: string
+            enum:
+              - US
+              - HMA
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchADUsers'
+      responses:
+        200:
+          description: LDAP returned a response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/ad/server/usage:
+    get:
+      summary: Returns a the server usage
+      parameters:
+        - in: query
+          name: server_name
+          schema:
+            type: string
+          required: false
+          description: The name of the server, e.g. ADTEST, US, HMA...
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/ad/user/{distinguished_name}/groups:
+    get:
+      summary: Returns a list of group memberships for a given user
+      description: This endpoint uses the memberOf attribute for a given distinguishedName to return groups.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: server_name
+          schema:
+            type: string
+            enum:
+              - US
+              - HMA
+          required: false
+          description: The name of the server, e.g. US, HMA, mocked
+        - in: path
+          name: distinguished_name
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the account for which group memberships will be returned
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: List of group memberships
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ad/users/lookup:
+    get:
+      summary: Searches for objectClass=CHSUser by sAMAccountName
+      description: Looks up user by sAMAccountName
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: server_name
+          schema:
+            type: string
+            enum:
+              - US
+              - HMA
+          required: false
+          description: The name of the server, e.g. US, HMA, mocked
+        - in: query
+          name: sam_account_name
+          schema:
+            type: string
+          required: true
+          description: sAMAccountName is the search criteria
+          example: 'mary.smith'
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: LDAP returned a response.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Entry'
+        400:
+          description: sAMAccountName was missing.
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ad/servers:
+    get:
+      summary: Returns a list of AD servers
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/compare:
+    get:
+      summary: Compares two entities
+      description: Given two distinguished names (dn1 & dn2), compares the attribute values.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: query
+          name: dn1
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the first entry to compare
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+        - in: query
+          name: dn2
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the second entry to compare
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Entry'
+        400:
+          description: one of the DN entries was missing.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/default-password/{dn}:
+    get:
+      summary: Returns the user's default password
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+        - in: path
+          name: dn
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the entry to get
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  default_password:
+                    type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal Server Error
+
+  /api/netiq/download/compare:
+    get:
+      summary: Compares two entities
+      description: Given two distinguished names (dn1 & dn2), compares the attribute values.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: query
+          name: dn1
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the first entry to compare
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+        - in: query
+          name: dn2
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the second entry to compare
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: OK
+        400:
+          description: one of the DN entries was missing.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/download/roles:
+    post:
+      summary: Searches roles by posted search criteria.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRoles'
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/download/acls/{dn}:
+    get:
+      summary: Downloads user ACLs at Excel file
+      description: Downloads CHS-CernerAccessList and CHS-AS400AccessList for the given user.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+        - in: path
+          name: dn
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the entry to get
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/download/exceptions-report/{report_id}:
+    get:
+      summary: Searches roles by posted search criteria.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: report_id
+          schema:
+            type: string
+          required: true
+          description: The ID of the report to be downloaded.
+      responses:
+        200:
+          description: OK
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/entry/{dn}:
+    get:
+      summary: Lookup an entry by DN
+      description: Given a distinguished name, returns an entry
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: path
+          name: dn
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the entry to get
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: LDAP returned false.
+
+  /api/netiq/market_facilites/main_hospital_code/{main_hospital_code}/hospital_code/{hospital_code}:
+    get:
+      summary: returns the market facilities for a main hospical code and hospital code.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: main_hospital_code
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: hospital_code
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+
+  /api/netiq/password/{dn}:
+    put:
+      summary: Resets the password for a given DN
+      description: See https://support.microfocus.com/kb/doc.php?id=7009858.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: path
+          name: dn
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the entry to get
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        200:
+          description: OK
+        400:
+          description: Password is invalid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/generate-exceptions-report:
+    post:
+      summary: Creates a request for an exceptions report by posting report criteria
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchExceptions'
+      responses:
+        200:
+          description: The report request has been published to the message queue
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: The JSON data was not valid.
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/reports/user/{user_cn}:
+    get:
+      summary: Gets a report by user_cn.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: user_cn
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/netiq/user/{cn}/attributes:
+    put:
+      description: Changes a user's attributes asynchronously
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: asynchronous
+          required: false
+          schema:
+            type: boolean
+            enum:
+              - true
+              - false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttributesRequest'
+      responses:
+        200:
+          description: The change request is queued
+          content:
+            plain/text:
+              schema:
+                type: string
+        400:
+          description: Invalid JSON
+          content:
+            plain/text:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Iternal server error
+          content:
+            plain/text:
+              schema:
+                type: string
+
+  /api/netiq/role/{cn}/attributes:
+    put:
+      description: Changes a roles's attributes asynchronously
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: asynchronous
+          required: false
+          schema:
+            type: boolean
+            enum:
+              - true
+              - false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAttributesRequest'
+      responses:
+        200:
+          description: The change request is queued
+          content:
+            plain/text:
+              schema:
+                type: string
+        400:
+          description: Invalid JSON
+          content:
+            plain/text:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Iternal server error
+          content:
+            plain/text:
+              schema:
+                type: string
+
+  /api/report/{report_id}:
+    delete:
+      summary: Deletes a report by report_id.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: report_id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            plain/text:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal server error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/reports_details/{report_id}:
+    get:
+      summary: Gets a report by created_by.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: report_id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExceptionDetails'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/netiq/revoke_exception:
+    post:
+      description: Revoke an active RBAC exception
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevokeExceptionRequest'
+      responses:
+        200:
+          description: The exception was revoked
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/search_facilities:
+    post:
+      summary: Searches facilities by posted search criteria.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchFacilities'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/search_roles:
+    post:
+      summary: Searches roles by posted search criteria.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRoles'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/search_users:
+    post:
+      summary: Searches users by posted search criteria.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchUsers'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/netiq/user/{dn}/exceptions:
+    get:
+      summary: Searchs for exceptions for a user.
+      description: Looks for exceptions at search base "/ou=Exceptions,ou=ESC,o=CHSMain"
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: dn
+          schema:
+            type: string
+          required: true
+          description: Distinguished Name of the user for whom exceptions will be fetch (only the "cn" node is used)
+          example:
+            cn=mwatkins,ou=employees,ou=finance,dc=acme,dc=com
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - EXPIRED
+              - EXPIRING_SOON
+              - EXPIRED_RECENTLY
+          required: true
+          description: The frontend makes four asynchronous calls, one for each category.
+        - in: query
+          name: as-of-date
+          schema:
+            type: string
+            format: Date
+          required: false
+          description: Allow fetching exceptions relative to a given Date
+          example:
+            2020-07-21T17:32:28Z
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: LDAP returned a response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: dn was missing.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: LDAP returned false.
+
+  /api/netiq/workflow_notes:
+    get:
+      summary: Returns the list of active workflow notes
+      description: (&(objectClass=srvprvRequest)(srvprvstatus=Active)(acl=*))
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+
+  /api/netiq/user/{cn}/workflows:
+    get:
+      summary: Lookups up a user's workflow statuses
+      description: Lookups up workflow statuses in the BDCAuth Vault for the given user.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: cn
+          schema:
+            type: string
+          required: true
+          description: Common Name of the user for whom exceptions will be fetch (only the "cn" node is used)
+          example:
+            mboettch
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+      responses:
+        200:
+          description: LDAP returned a response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: LDAP returned false.
+
+  /api/netiq/exceptions:
+    post:
+      description: Creates an RBE Exception
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+        - in: query
+          name: asynchronous
+          required: false
+          schema:
+            type: boolean
+            enum:
+              - true
+              - false
+        - in: query
+          name: action_status
+          description: Only valid in combination with asynchronous = true
+          required: false
+          schema:
+            type: string
+            enum:
+              - SUBMITTED
+              - DRAFT
+            default: SUBMITTED
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExceptionRequest'
+      responses:
+        200:
+          description: The CreateExceptionRequest was published to the message queue
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: The request JSON was not valid.
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/netiq/host/{host_id}:
+    delete:
+      summary: Deletes a host
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: host_id
+          schema:
+            type: string
+          required: true
+          description: The id of the host_to be deleted
+      responses:
+        204:
+          description: NO CONTENT
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+    get:
+      summary: Retrieves a host by id
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: host_id
+          schema:
+            type: string
+          required: true
+          description: The id of the host to retrieve
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      summary: Udpates a host
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: host_id
+          schema:
+            type: string
+          required: true
+          description: The id of the host to retrieve
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Host'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        400:
+          description: The JSON was invalid
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          description: Permission denied
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal server error
+
+  /api/netiq/hosts:
+    get:
+      summary: List of hosts records
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableHosts'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      summary: Creates a new host
+      security:
+        - bearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Host'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        400:
+          description: The request JSON was not valid.
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+
+  /api/netiq/roles:
+    post:
+      description: Creates a role
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+        - in: query
+          name: asynchronous
+          required: false
+          schema:
+            type: boolean
+            enum:
+              - true
+              - false
+        - in: query
+          name: action_status
+          description: Only valid in combination with asynchronous = true.
+          required: false
+          schema:
+            type: string
+            enum:
+              - SUBMITTED
+              - DRAFT
+            default: SUBMITTED
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoleRequest'
+      responses:
+        200:
+          description: The CreateRoleRequest was published to the message queue
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          description: The request JSON was not valid.
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/netiq/server/usage:
+    get:
+      summary: Returns a the server usage
+      parameters:
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the vault or server, e.g. Main, BDCDev, BDCMain, BDCAuth, etc...
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+        500:
+          description: Internal Server Error
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/server_group_by_name/{server_group_name}:
+    get:
+      summary: Retrieves a server group by name
+      parameters:
+        - in: path
+          name: server_group_name
+          schema:
+            type: string
+          required: true
+          description: The name of the server group to fetch
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerGroup'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/server_group/{server_group_id}:
+    delete:
+      summary: Deletes a server group
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: server_group_id
+          schema:
+            type: string
+          required: true
+          description: The id of the server group to be deleted
+      responses:
+        204:
+          description: NO CONTENT
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+    get:
+      summary: Retrieves a server group by id
+      parameters:
+        - in: path
+          name: server_group_id
+          schema:
+            type: string
+          required: true
+          description: The id of the server group to retrieve
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerGroup'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+    put:
+      summary: Udpates a server group
+      parameters:
+        - in: path
+          name: server_group_id
+          schema:
+            type: string
+          required: true
+          description: The id of the server group to retrieve
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerGroup'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerGroup'
+        400:
+          description: The JSON was invalid
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          description: Not found
+          content:
+            text/plain:
+              schema:
+                type: string
+        500:
+          description: Internal server error
+
+  /api/netiq/server_groups:
+    get:
+      summary: List of server groups records
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableServerGroups'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      summary: Creates a new server group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerGroup'
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerGroup'
+        400:
+          description: The server group JSON was not valid.
+          content:
+            text/plain:
+              schema:
+                type: string
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/server_group_hosts/{server_group_id}:
+    get:
+      summary: List of hosts records for a given server group id
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: server_group_id
+          schema:
+            type: string
+          required: true
+          description: The id of the server groups for which hosts will be returned
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableHosts'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /api/netiq/vaults:
+    get:
+      summary: Returns a list of NetIQ Vaults
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vaults:
+                    type: array
+                    items:
+                      type: string
+        500:
+          description: Server Exception
+
+  /api/lookup_eeid/{partial_eeid}:
+    get:
+      summary: Given the starting characters of an EEID, returns
+      description: Requires three or more starting characters of an EEID, returns mathing employee demographics
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+          required: false
+        - in: path
+          name: partial_eeid
+          schema:
+            type: string
+          required: false
+          description: The first few characters of the EEID of the employee for which matching demographics will be returned
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableEmployeeDemographics'
+
+  /api/lookup_ad_username/{partial_ad_username}:
+    get:
+      summary: Given the starting characters of an Active Directory username, returns mathing employee demographics
+      description: Requires three or more starting characters of an active directory user name
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+          required: false
+        - in: path
+          name: partial_ad_username
+          schema:
+            type: string
+          required: false
+          description: The first few characters of the AD username of the employee for which matching demographics will be returned
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableEmployeeDemographics'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/lookup_employee_number/{partial_employee_number}:
+    get:
+      summary: Given the starting characters of an employee number, returns mathing employee demographics
+      description: Requires three or more starting characters of an employee number
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: number
+          required: false
+        - in: path
+          name: partial_employee_number
+          schema:
+            type: string
+          required: false
+          description: The first few characters of the employee number of the employee for which matching demographics will be returned
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableEmployeeDemographics'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/lookup_department/{partial_department}:
+    get:
+      summary: Looks up departments starting with the given partial department
+      description: Search for objectClass CHSDepartment or CHS-DepartmentTable where cn or ou starts with partial_department
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: partial_department
+          schema:
+            type: string
+          required: true
+          description: The starting department number to match.
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+        - in: query
+          name: exact
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: The number of results to return.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/lookup_position/{partial_position}:
+    get:
+      summary: Looks up postions starting with the given partial position
+      description: Search for objectClass CHSPosition or CHS-PositionTable where CHS-AssignedPosition starts with partial_position
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: partial_position
+          schema:
+            type: string
+          required: true
+          description: The starting position number to match.
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+          description: The name of the server, e.g. mocked, test, prod
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+        - in: query
+          name: exact
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: The number of results to return.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Internal Server Error
+
+  /api/lookup_hospital/{partial_hosp_code}:
+    get:
+      summary: Looks up hospitals starting with the given partial hospital code
+      description: Search for objectClass CHSFacility where CHS-FacilityCode starts with partial_department and CHS-HospitalName exists.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: partial_hosp_code
+          schema:
+            type: string
+          required: true
+          description: The starting department number to match.
+        - in: query
+          name: vault
+          schema:
+            type: string
+            default: BDCMain
+          required: false
+        - in: query
+          name: page
+          schema:
+            type: number
+            default: 0
+          description: The page number to return
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+            default: 20
+          description: The number of results to return
+          required: false
+        - in: query
+          name: exact
+          schema:
+            type: boolean
+            default: false
+          required: false
+          description: The number of results to return.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          description: Server Exception
+
+  /api/reports/paged_by_cn/{user_cn}:
+    get:
+      summary: Gets a report by owner cn.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: user_cn
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableReports'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/reports/paged_exception_details/{report_id}:
+    get:
+      summary: Gets exceptions for a given report_id.
+      parameters:
+        - in: path
+          name: report_id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableExceptionDetail'
+
+  /api/category/{category}/keywords:
+    get:
+      description: Returns all keywords for a category
+      parameters:
+        - in: path
+          name: category
+          schema:
+            type: string
+            enum:
+              - ASSIGNABLE_ROLE_ATTRIBUTES
+              - AD_HOSTS
+              - CERNER_HUBS
+          required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keywords'
+
+  /api/keywords:
+    get:
+      description: Returns all keywords
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keywords'
+
+  /api/ultipro/employee-demographic/{employee_number}:
+    get:
+      summary: Lookups an employee demographic by eeid
+      description: Given an employee_number, returns an employee demographic record
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: employee_number
+          schema:
+            type: string
+          required: true
+          description: employee_number of the employee demographic to return
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeDemographics'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ultipro/employee-job/{employee_number}:
+    get:
+      summary: Lookups an employee job by employee number
+      description: Given an employee number, returns an employee job record
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: employee_number
+          schema:
+            type: string
+          required: true
+          description: employee number of the Employee Job to return
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeJob'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ultipro/search_job:
+    post:
+      summary: Searches for employee demographics by eeid or name
+      description: Given an eeid or employee name, returns employee job records
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+          description: Thge page number
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UltiproSearchCriteria'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableEmployeeJobs'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/ultipro/search_demographics:
+    post:
+      summary: Searches for employee demographics by eeid or name
+      description: Given an eeid or employee name, returns employee demographic records
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: number
+          required: false
+          description: Thge page number
+        - in: query
+          name: page_size
+          schema:
+            type: number
+          required: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UltiproSearchCriteria'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageableEmployeeDemographics'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /api/warmup_connections:
+    get:
+      summary: The purpose of this endpoint is primage the Vault connection pools.
+      description: Makes asysnchronous calls to "/api/netiq/server_usage for all vaults
+      responses:
+        200:
+          description: OK
+
+components:
+  schemas:
+
+    Action:
+      type: object
+      required:
+        - action_id
+        - action_type
+        - action_status
+        - action_owner
+        - created_by
+        - updated_by
+      properties:
+        action_id:
+          type: string
+        action_type:
+          type: string
+          description: The type of action to perform
+          enum:
+            - CREATE_EXCEPTION
+            - REVOKE_EXCEPTION
+            - CREATE_ROLE
+            - UPDATE_ROLE
+            - DELETE_ROLE
+            - GENERATE_REPORT
+            - HEALTH_CHECK
+            - SERVER_USAGE
+        action_status:
+          type: string
+          description: The action lifecycle status. DRAFT are started but not acted on.
+          enum:
+            - DRAFT
+            - CANCELED
+            - SUBMITTED
+            - COMPLETE
+            - ERROR
+          default: SUBMITTED
+        action_url:
+          type: string
+          description: The URL at which the action will be performed
+        action_owner:
+          type: string
+          description: The user on whose behave the action will be performed
+        http_method:
+          type: string
+          enum:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+          description: The method type used with the action_url
+        display_url:
+          type: string
+          description: The url at which the results of the actions are available
+        action_args:
+          type: string
+          description: A JSON representation of the URL query string args
+        action_body:
+          type: string
+          description: A JSON representation of the action request body.
+        action_version:
+          type: string
+          description: The software version at the time the action was created.
+        token:
+          type: string
+          description: Access token for the operation
+        status_code:
+          type: number
+          description: The status of the server call.
+        message:
+          type: string
+          description: A description of the results of invoking this action.
+        content_type:
+          type: string
+          description: The content type returned by the server.
+        content:
+          type: string
+          description: the content returned by the server.
+        created_by:
+          type: string
+        created_date:
+          type: string
+          format: Date
+        update_date:
+          type: string
+          format: Date
+        updated_by:
+          type: string
+
+    Actions:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+
+    CreateExceptionRequest:
+      type: object
+      description: A request to create a new RBE exception
+      required:
+        - user_cn
+        - application
+        - roles
+        - facilities
+        - user_hosp_code
+      properties:
+        user_cn:
+          type: string
+          description: The user's cname -> "cn" and "CHS-ExApprovers"
+        user_hosp_code:
+          type: string
+          description: The user's hospital code -> "CHS-HospitalCode"
+        user_main_hosp_code:
+          type: string
+          description: The user's main hospital code -> "CHS-MainHospCode"
+        exception_desc:
+          type: string
+          description: The selected role desc -> "CHS-ExDesc"
+        department:
+          type: string
+          description: The user department.
+        application:
+          type: string
+          description: App from Select list on page -> "CHS-ExApp"
+          enum:
+            - Cerner
+            - HMS
+        end_time:
+          type: Date
+          description: Form field on page -> "CHS-ExEndTime"
+        roles:
+          type: array
+          items:
+            type: object
+            properties:
+              dn:
+                type: string
+                description: Exception role DN
+              name:
+                type: string
+                description: CHS-Role
+        facilities:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              dn:
+                type: string
+              name:
+                type: string
+        justification:
+          type: string
+          description: Form field on add exception popup -> "CHS-RBEJustification"
+        display_url:
+          type: string
+          description: The url where the new role can be viewed
+
+    CreateRoleRequest:
+      type: object
+      description: A request to create a new role.
+      properties:
+        cn:
+          type: string
+          description: The role common name
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+
+    EmployeeJob:
+      description: Represents an UltiPro employee from EDD_PROD.IDM_EmpJob
+      type: object
+      properties:
+        pk_eeid:
+          type: string
+        pk_entity:
+          type: string
+        employee_number:
+          type: string
+        company_code:
+          type: string
+        coid:
+          type: string
+        name_full:
+          type: string
+        primary_entity:
+          type: string
+        date_in_job:
+          type: string
+        job_status:
+          type: string
+        date_job_end:
+          type: number
+        job_supervisor_eeid:
+          type: string
+        npi:
+          type: string
+        pk_dept:
+          type: string
+        pk_job_code:
+          type: string
+        job_title:
+          type: string
+        job_is_primary:
+          type: string
+
+    EmployeeDemographics:
+      description: Only a subset of the table columns are returned to protect PII data.
+      type: object
+      properties:
+        pk_eeid:
+          type: string
+        entity:
+          type: string
+        employee_number:
+          type: string
+        company_code:
+          type: string
+        coid:
+          type: string
+        name_full:
+          type: string
+        primary_entity:
+          type: string
+        date_of_original_hire:
+          type: string
+        hmsr_stat:
+          type: string
+        date_of_last_termination:
+          type: string
+        supervisor_eeid:
+          type: string
+        npi:
+          type: string
+        date_of_last_hire:
+          type: string
+        ad_username:
+          type: string
+        ee_status:
+          type: string
+
+    Entry:
+      type: object
+      description: A LDAP entry dn and its attributes.
+      properties:
+        dn:
+          type: string
+          example:
+            cn=mgrables,ou=employees,ou=finance,dc=acme,dc=com
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            cn: mgrables
+            dn: cn=mgrables,ou=employees,ou=finance,dc=acme,dc=com
+            first_name: Maxine
+            last_name: Gables
+            mail: m.gables@company.com
+
+    ExceptionDetail:
+      type: object
+      properties:
+        exception_id:
+          type: string
+        report_id:
+          type: string
+        user_id:
+          type: string
+        app:
+          type: string
+        scope:
+          type: string
+        facility:
+          type: string
+        role:
+          type: string
+        start_date:
+          type: Date
+        end_date:
+          type: Date
+        requestor:
+          type: string
+        approvers:
+          type: string
+        pending_approval:
+          type: string
+        user_status:
+          type: string
+        user_type:
+          type: string
+
+    ExceptionDetails:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionDetail'
+
+    HealthCheck:
+      description: System health check
+      type: object
+      properties:
+        system:
+          type: string
+        status:
+          type: string
+        database_status:
+          type: string
+        hostname:
+          type: string
+        ip_addr:
+          type: string
+        date_time:
+          type: Date
+
+    IdmToolEvent:
+      description: IDM Tool business event
+      type: object
+      properties:
+        message_id:
+          type: string
+        message_type:
+          type: string
+        correlation_id:
+          type: string
+        user_name:
+          type: string
+        hosp_code:
+          type: string
+        hosp_name:
+          type: string
+        main_code:
+          type: string
+        division:
+          type: string
+        payload:
+          type: string
+        event_source:
+          type: string
+        server_name:
+          type: string
+        message_version:
+          type: string
+        created_by:
+          type: string
+        created_date:
+          type: string
+
+    Keyword:
+      type: object
+      required:
+        - category
+        - value
+        - created_by
+      properties:
+        keyword_id:
+          type: string
+        category:
+          type: string
+        value:
+          type: string
+        created_by:
+          type: string
+        created_date:
+          type: string
+          format: Date
+        update_date:
+          type: string
+          format: Date
+        updated_by:
+          type: string
+
+    Keywords:
+      type: object
+      description: Report search results
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Keyword'
+
+    PageableActions:
+      type: object
+      description: A page of actions
+      properties:
+        cn:
+          type: string
+          description: CN of the action owner
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Action'
+
+    PageableIdmToolEvents:
+      type: object
+      description: A page of exception details
+      properties:
+        report_id:
+          type: string
+          description: Id of parent report.
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdmToolEvent'
+
+    PageableReports:
+      type: object
+      description: A page of reports
+      properties:
+        cn:
+          type: string
+          description: CN of the report owner
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Report'
+
+    PageableExceptionDetail:
+      type: object
+      description: A page of exception details
+      properties:
+        report_id:
+          type: string
+          description: Id of parent report.
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExceptionDetail'
+
+    Report:
+      type: object
+      properties:
+        report_id:
+          type: string
+        report_type:
+          type: string
+          example: EXCEPTIONS
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+            - SUBMITTED
+            - PROCESSING
+            - COMPLETED
+            - ERROR
+        report_criteria:
+          type: string
+        server_name:
+          type: string
+        created_date:
+          type: string
+          format: Date
+        created_by:
+          type: string
+        update_date:
+          type: string
+          format: Date
+        updated_by:
+          type: string
+
+    Reports:
+      type: object
+      description: Report search results
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Report'
+
+    SearchExceptions:
+      type: object
+      description: Exceptions report criteria
+      required:
+        - search_scope
+      properties:
+        search_scope:
+          type: string
+          enum:
+            - ALL
+            - EXPIRING_SOON
+            - EXPIRED
+            - EXPIRED_RECENTLY
+        gl_code:
+          type: string
+        application:
+          type: string
+          enum:
+            - Cerner
+            - HMS
+        hide_contractors:
+          type: boolean
+        hide_terminated:
+          type: boolean
+        exception_days:
+          type: number
+          default: 30
+        marketFacilities:
+          description: The purpose of this attribute is to filter results to user's authorized facilitites
+          type: array
+          items:
+            type: string
+
+    ResetPasswordRequest:
+      type: object
+      description: A request to reset a password
+      required:
+        - dn
+      properties:
+        dn:
+          description: The dn of the user whose passward to reset
+          type: string
+          example: cn=lmartin,cn=employees,ou=test,o=lab
+        password:
+          description: The new password. None if default is true.
+          type: string
+        default:
+          description: True if the passward is to be reset to its default value. Password is ignored if default is true. The default is first and last name first inital plus last six of ssn.
+          type: boolean
+          default: False
+
+    SearchADUsers:
+      type: object
+      description: Simple user lookup
+      properties:
+        cn:
+          type: string
+          description: The AD cn attribute (likely to match NetIQ cn)
+        cn_exact:
+          type: boolean
+          description: False allows partial matches
+        sam_account_name:
+          type: string
+          description: The AD sAMAccountName attribute (likely to match NetIQ cn)
+        sam_account_name_exact:
+          type: boolean
+          description: False allows partial matches
+        given_name:
+          type: string
+          description: The AD givenName attribute (first name)
+        given_name_exact:
+          type: boolean
+          description: False allows partial matches
+        sn:
+          type: string
+          description: The AD sn attribute (last name)
+        sn_exact:
+          type: boolean
+          description: False allows partial matches
+        facilities:
+          description: The purpose of this attribute is to filter results to user's authorized facilitites
+          type: array
+          items:
+            type: string
+        attributes:
+          description: The attributes to return
+          type: array
+          items:
+            type: string
+        page:
+          type: number
+          description: The page number to return
+        page_size:
+          type: number
+          description: The number of results to return
+
+    SearchFacilities:
+      type: object
+      description: Searches for facilities matching posted criteria
+      properties:
+        name:
+          type: string
+          example: Alpine, TX - 558
+        name_exact:
+          type: boolean
+          example: false
+          description: True search for an exact match for faster searches
+        facility_code:
+          type: number
+        facility_code_exact:
+          type: boolean
+          example: false
+          description: True search for an exact match for faster searches
+        main_facility_code:
+          type: number
+        main_facility_code_exact:
+          type: boolean
+          example: false
+          description: True search for an exact match for faster searches
+        hospital_pr_code:
+          type: number
+        hospital_city:
+          type: string
+        hospital_city_exact:
+          type: boolean
+        cerner_hub:
+          type: string
+        entry_type:
+          type: string
+        application:
+          type: string
+          enum:
+            - Cerner
+            - HMS
+        exception_only:
+          description: If true, restricts facilities for the Exception Manager page.
+          type: boolean
+          default: false
+        facilities:
+          description: The purpose of this attribute is to filter results to user's authorized facilitites
+          type: array
+          items:
+            type: string
+        attributes:
+          description: The list of attributes to return
+          type: array
+          items:
+            type: string
+        page:
+          type: number
+          default: 0
+          description: The starting page number
+        page_size:
+          type: number
+          default: 20
+          description: The number of entries per page
+
+    SearchRoles:
+      type: object
+      description: Searches for Roles matching posted criteria
+      properties:
+        role_name:
+          type: string
+          example: Case Manager RN in CASE MANAGEMENT at 102
+        role_name_exact:
+          type: boolean
+          default: false
+          description: True search for an exact match for faster searches
+        position_code:
+          type: number
+          example: 36001
+        position_code_exact:
+          type: boolean
+          default: false
+          description: True search for an exact match for faster searches
+        hospital_code:
+          type: number
+          example: 800
+        hospital_code_exact:
+          type: boolean
+          default: false
+          description: True search for an exact match for faster searches
+        dept_code:
+          type: number
+          example: 6287
+        dept_code_exact:
+          type: boolean
+          example: false
+          description: True search for an exact match for faster searches
+        rbac_role:
+          type: boolean
+          example: false
+        role_type:
+          type: string
+          description: CHS-RBACRole allows you to specify your role search on a more granular level 
+          enum:
+            - All
+            - Baseline
+            - Exception
+        application:
+          type: string
+          enum:
+            - Cerner
+            - HMS
+        attributes:
+          description: The role attributes to be returned
+          type: array
+          items:
+            type: string
+        page:
+          type: number
+          description: The page number to return
+        page_size:
+          type: number
+          description: The number of results to return
+
+    SearchResults:
+      type: object
+      description: Entry search results
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entry'
+        criteria:
+          type: string
+          description: The search critera
+        cookie:
+          type: string
+          description: The paged cookie
+        elapsed_security_time:
+          type: number
+        elapsed_ldap_time:
+          type: number
+        server:
+          type: string
+        page:
+          type: number
+        page_size:
+          type: number
+
+    SearchUsers:
+      type: object
+      description: Searches for users matching posted criteria
+      properties:
+        cn:
+          type: string
+        cn_exact:
+          type: boolean
+          example: false
+          description: True search for an exact match for faster searches
+        eeid:
+          type: string
+        eeid_exact:
+          type: boolean
+          example: false
+        given_name:
+          type: string
+        given_name_exact:
+          type: boolean
+          example: false
+        surname:
+          type: string
+        surname_exact:
+          type: boolean
+          example: false
+        emp_no:
+          type: string
+        emp_no_exact:
+          type: boolean
+          example: false
+        uid:
+          type: string
+        uid_exact:
+          type: boolean
+          example: false
+        application:
+          type: string
+          enum:
+            - Cerner
+            - HMS
+        rbac_role:
+          type: string
+        role_name:
+          type: string
+        department:
+          type: string
+        position:
+          type: string
+        hospital:
+          type: string
+        facilities:
+          description: The purpose of this attribute is to filter results to user's authorized facilitites
+          type: array
+          items:
+            type: string
+        attributes:
+          description: The attributes to return
+          type: array
+          items:
+            type: string
+        page:
+          type: number
+          description: The page number to return
+        page_size:
+          type: number
+          description: The number of results to return
+
+    UpdateAttributesRequest:
+      type: object
+      description: A request to update a user's attribute(s)
+      required:
+        - dn
+        - updates
+      properties:
+        dn:
+          type: string
+          description: The DN of the person to be updated
+        updates:
+          type: array
+          description: The attribute to change
+          items:
+            $ref: '#/components/schemas/UpdateAttribute'
+
+    UpdateAttribute:
+      type: object
+      description: A request to change the a user's attribute
+      required:
+        - attribute
+        - value_before
+        - value_after
+      properties:
+        attribute:
+          type: string
+          description: The attribute to change
+        value_before:
+          type: string
+          description: The value before the change.
+        value_after:
+          type: string
+          description: The value after the change.
+
+    PageableEmployeeJobs:
+      type: object
+      description: A page of actions
+      properties:
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeJob'
+
+    PageableEmployeeDemographics:
+      type: object
+      description: A page of actions
+      properties:
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmployeeDemographics'
+
+    PageableServerGroups:
+      type: object
+      description: A page of server groups
+      properties:
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServerGroup'
+
+    PageableHosts:
+      type: object
+      description: A page of server hosts
+      properties:
+        page:
+          type: number
+          description: The page number
+        page_size:
+          type: number
+          description: The number of results per page page number
+        pages:
+          type: number
+          description: The total number of pages
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Host'
+
+    Host:
+      type: object
+      description: A host address of a server group
+      required:
+        - hostname
+        - server_group_id
+      properties:
+        id:
+          type: string
+          description: The UUID of the the host record.
+        hostname:
+          type: string
+          description: The hostname or ip address of the host
+        server_group_id:
+          type: string
+          description: The UUID of the parent Server Group
+        status:
+          type: string
+          default: UNKNOWN
+          description: The status of the host.
+          enum:
+            - UNKNOWN
+            - AVAILABLE
+            - UNAVAILABLE
+            - ERROR
+        created_by:
+          type: string
+        created_date:
+          type: Date
+        update_date:
+          type: Date
+        updated_by:
+          type: string
+
+    OAuth2Tokens:
+      description: OAuth2 Tokens from token exchange
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        id_token:
+          type: string
+        token_type:
+          type: string
+        expires_in:
+          type: number
+
+    RevokeExceptionRequest:
+      type: object
+      description: A request to revoke an RBAC exception
+      properties:
+        cn:
+          type: string
+        justification:
+          type: string
+        expiration_date:
+          type: Date
+        facility:
+          type: string
+        role:
+          type: string
+
+    ServerGroup:
+      type: object
+      description: Identifies a group of servers, typically an Idenity Vault in this case
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - VAULT
+            - AD
+        base_dn:
+          type: string
+          example: o=Main
+        server_connect_timeout:
+          type: number
+        server_get_info:
+          type: string
+          enum:
+            - NONE
+            - DSA
+            - SCHEMA
+            - ALL
+        server_use_ssl:
+          type: boolean
+        server_port:
+          type: number
+        raise_exceptions:
+          type: boolean
+        connection_authentication:
+          type: string
+          enum:
+            - ANONYMOUS
+            - SIMPLE
+            - SASL
+            - NTLM
+        connection_client_strategy:
+          type: string
+          enum:
+            - SYNC
+            - ASYNC
+            - LDIF
+            - RESTARTABLE
+        connection_auto_bind:
+          description: automatically opens and binds the connection
+          type: string
+          enum:
+            - AUTO_BIND_NONE
+            - AUTO_BIND_NO_TLS
+            - AUTO_BIND_TLS_AFTER_BIND
+            - AUTO_BIND_TLS_BEFORE_BIND
+        connection_auto_range:
+          type: boolean
+        connection_receive_timeout:
+          type: boolean
+        connection_collect_usage:
+          type: boolean
+        connection_pool_name:
+          type: string
+        connection_pool_size:
+          type: number
+        connection_pool_keepalive:
+          type: number
+        connection_pool_lifetime:
+          type: number
+        group_name:
+          type: string
+          example: BDCMain
+        created_by:
+          type: string
+        created_date:
+          type: Date
+        update_date:
+          type: Date
+        updated_by:
+          type: string
+
+    UltiproSearchCriteria:
+      description: Search criteria
+      type: object
+      properties:
+        name_first:
+          type: string
+        name_first_exact:
+          type: boolean
+        name_last:
+          type: string
+        name_last_exact:
+          type: boolean
+        eeid:
+          type: string
+        eeid_exact:
+          type: boolean
+        employee_number:
+          type: string
+        employee_number_exact:
+          type: boolean
+        ad_username:
+          type: string
+        ad_username_exact:
+          type: boolean
+        facilities:
+          type: array
+          items:
+            type: string
+
+    UserInfo:
+      description: Data from /user_info endpoint
+      properties:
+        sub:
+          type: string
+        name:
+          type: string
+        phone_number:
+          type: string
+        memberOf:
+          type: array
+          items:
+            type: string
+        given_name:
+          type: string
+        family_name:
+          type: string
+        email:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

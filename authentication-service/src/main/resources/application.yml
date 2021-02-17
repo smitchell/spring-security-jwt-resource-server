@@ -1,7 +1,8 @@
 ---
 server:
   port: 5000
-
+  servlet:
+    context-path: /authentication-service
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
@@ -32,45 +33,3 @@ management:
       exposure:
         include: '*'
 
-keypair:
-  # openssl genrsa -out jwt.pem 2048
-  # openssl rsa -in jwt.pem
-  private-key: |
-    -----BEGIN RSA PRIVATE KEY-----
-    MIIEowIBAAKCAQEAtYrFHUsT8d2gKYu9hdZBBs+xfLhga14oTMkecL9QDK50J8d7
-    eMWbiZYEQdWGpUU5AliC7GLADjhHsd+oS/UbxDTi1OZgPFvymFMNh2q3Y/V6v0L5
-    IPjxH6TVi3lx9lWYYfPxQfScrYiPzMKn3hQuyETJ0VJxETXGku/Xwhbk9g9dDiH/
-    JeCOfVV0zyPw4pOe6SnW+KaH/Vu0APPdQUXoMH2Brz4w3SodqxMWcHYYYSLwQu95
-    BOWahrN0jA0uBOkeiToaHi8f3CWyyX7wzr7OPXtVQu+MVbyk5OgL88K8iyfUVc44
-    hql5bbo195vPf++L0iiCLRCEoAHopGMY875hMQIDAQABAoIBAQCVo6D+mFgEUW4n
-    UKwTmZtYBfKCn2e6mI4XXN/eh5NwIIxWDbPUxO2D50fzDBJEQF7RdCvWtT8heXp/
-    P5/1nEAa5ozieFJy7kd1D2Bjcq9fkYRwCsBXUVtPfgsXQC+ToNJOS0ld2EcdMyd0
-    3C6Ke5BkO28vPwk76luX2mK59S0dNAFWilbN9PvKp0z+opMZjjvh3TxIFjuhGK/x
-    ce0GAbX9sIrTxeLz404VfA+x5ZnxF2lx8PMmQwldTR1djRy9s0wVnKbDCi1KZKqC
-    krlGzTs1nax1+l4cPa/NtC1Q8q7tWdaX6bz9bC1exqBGIcqc4rvJr3W3p4ffz1TO
-    OsSixwfBAoGBANe/Jt/frSTszTIGn2OYjp2MWUMZ9Tun2fMmjZuG75SY9brMu+0p
-    G1NJ3X6IQ6+r0kxMbJ6SSasGxCGn3GULe6bAQG6PQWiM+0PSeFgtL3mEhDaVegna
-    76lDwy9ePY9GdJTxzDqn2tpsv+vBxNH3eTmOf4FYuDjKzI6FtwlSmXJlAoGBANdp
-    4YZ4DlOFQf4sK9Ry+h4n+rADYR2q67sn/weqiLFGZ+jVWZwpjhICr1Km1KdYSrH7
-    4h7mvegHjYlR+L2MrVwkmtTwyy1AGv/BCIykyhqSNxYXmVEptUmsiV7mnR5oIA4T
-    9IwyDltRLihohKlC3lkuZSmqLlR62WTSkOcOciDdAoGAGfACNXIHt+O8O6JuMSQb
-    KTfBV37ca8KfQktFRQhw7zWAfWe1xCpn/Zhox5iMQqdujfu2J05BCw2yMLWkmoVJ
-    5V9Bn8kbPP2OC7ZW/4rXJU3YM1O/K0Yl//yEj8JNtlbrFykGu5qIhjAC1s4h4nhV
-    G6VVEPDgnPtMomnS+ozyo70CgYBB7A0wcZ0wwh8oAayIH4ebovB83QvjYGMzq1HI
-    rs+WMM2r217JA46OxHOS/6ska0iwnzzb6BFF6MnPtF5C48JJ6InZkLcc6flZO2G6
-    aNPQvd5NzHsG85SfL0X63OhIXeUxabn1DXyHRZiylQnEIsqY0DH1RjdXcyEEUcw2
-    aZ1ToQKBgEaVLgD6j6RgpGvZ6ANuU3D8vYfC7hiOB/JYA0srss1Yrl359/V83IvN
-    LPX/zSck2JUPxdQYU9G3XrRqxtf0qwESEDVzkGjpFzhfhtqnxPE+mnSgYJk2UNIp
-    ibO2MnW7/uuG7d767PoL9EiZh9qbx01T+tkssMVzlTpRDYhpCKrC
-    -----END RSA PRIVATE KEY-----
-  # openssl rsa -in jwt.pem -pubout
-  public-key: |
-    -----BEGIN PUBLIC KEY-----
-    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtYrFHUsT8d2gKYu9hdZB
-    Bs+xfLhga14oTMkecL9QDK50J8d7eMWbiZYEQdWGpUU5AliC7GLADjhHsd+oS/Ub
-    xDTi1OZgPFvymFMNh2q3Y/V6v0L5IPjxH6TVi3lx9lWYYfPxQfScrYiPzMKn3hQu
-    yETJ0VJxETXGku/Xwhbk9g9dDiH/JeCOfVV0zyPw4pOe6SnW+KaH/Vu0APPdQUXo
-    MH2Brz4w3SodqxMWcHYYYSLwQu95BOWahrN0jA0uBOkeiToaHi8f3CWyyX7wzr7O
-    PXtVQu+MVbyk5OgL88K8iyfUVc44hql5bbo195vPf++L0iiCLRCEoAHopGMY875h
-    MQIDAQAB
-    -----END PUBLIC KEY-----
