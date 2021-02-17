@@ -9,8 +9,7 @@ export class AuthService {
   ) {}
 
   public isAuthenticated(): boolean {
-    const oauth2TokensKey = 'oauth2TokenKey';
-    const tokens: string = localStorage.getItem(oauth2TokensKey);
+    const tokens: string = sessionStorage.getItem('token');
     if (tokens) {
       try {
         return true;
@@ -54,7 +53,7 @@ export class AuthService {
         // }
       } catch (e) {
         console.error('Access token error', e);
-        localStorage.removeItem(oauth2TokensKey);
+        localStorage.removeItem('token');
       }
     }
     return false;

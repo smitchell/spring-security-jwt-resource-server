@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import {ApiService} from '../../api/services/api.service';
 
 @Component({
   selector: 'app-authorized',
@@ -7,10 +8,13 @@ import {ActivatedRoute, Router} from '@angular/router';
   styleUrls: ['./authorized.component.scss']
 })
 export class AuthorizedComponent implements OnInit {
+  code: string;
+  state: string;
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private apiService: ApiService
   ) {
   }
 
@@ -23,12 +27,51 @@ export class AuthorizedComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.login(params);
+      this.code = params.code;
+      this.state = params.state;
+      /*
+        This is a demo workaround. The first time /oauth/authorize is called, it triggers the custom login form,
+        but only a sessionID is returned, not an authorization code. The second time it is called, using
+        a valid sessionID, the authorization code is returned.
+       */
+      if (!this.code) {
+        const randomState: string = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        window.location.href = 'http://localhost:5000/oauth/authorize?response_type=code&client_id=gateway-client&state=' + randomState;
+        return false;
+      } else {
+        this.exchangeToken();
+      }
     });
   }
 
-  login(params: any): void {
-    console.log(`token = "${JSON.stringify(params)}`);
+  exchangeToken(): void {
+    console.log(`code = "${this.code}" state = "${this.state}"`);
+    const params = {authorizationCode: this.code};
+    console.log('calling apiService.authenticateGet');
+
+    this.apiService.exchangeTokenGet(params).subscribe(
+      success => this.handleUserData(success),
+      error => this.handleError(error)
+    );
+  }
+
+  handleError(error: any): void {
+    console.log('handleError() ' + error.message);
+    console.log(error);
+    let errorMsg = 'An error occurred exchanging the authentication code for an access token: ';
+    try {
+      errorMsg += encodeURIComponent(JSON.stringify(error.message));
+    } catch (e) {
+      console.error(e);
+    }
+    this.router.navigate(['error'],  { queryParams: { errorMsg }});
+  }
+
+  handleUserData(userData: any): void {
+    console.log('handleUserData()');
+    const tokenStr = 'Bearer ' + userData.token;
+    sessionStorage.setItem('token', tokenStr);
+    this.router.navigate(['/']);
   }
 
 }

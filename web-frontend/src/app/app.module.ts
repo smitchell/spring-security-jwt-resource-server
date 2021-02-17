@@ -9,7 +9,6 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
-import {LoginComponent} from './pages/login/login.component';
 import {LogoutComponent} from './pages/logout/logout.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
@@ -17,21 +16,21 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {BasicAuthHttpInterceptor} from './interceptors/basic-auth-http.interceptor';
 import {MatInputModule} from '@angular/material/input';
 import {CanDeactivateGuard} from './directives/can-component-deactivate';
 import {TokenInterceptor} from './components/auth/token.interceptor';
 import { AuthorizedComponent } from './pages/authorized/authorized.component';
+import { ErrorComponent } from './pages/error/error.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    LoginComponent,
     LogoutComponent,
     HeaderComponent,
     FooterComponent,
-    AuthorizedComponent
+    AuthorizedComponent,
+    ErrorComponent
   ],
   imports: [
     AppRoutingModule,
@@ -47,8 +46,7 @@ import { AuthorizedComponent } from './pages/authorized/authorized.component';
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule,
-    FormsModule
+    MatProgressSpinnerModule
   ],
   providers: [
     CanDeactivateGuard,

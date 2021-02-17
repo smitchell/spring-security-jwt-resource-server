@@ -1,6 +1,16 @@
 ---
+
 server:
-  port: 5001
+  port: 5005
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:5000/authentication-service/auth/realms/example
+  profiles:
+    active: development
 
 logging:
   level:
@@ -13,3 +23,8 @@ management:
     web:
       exposure:
         include: '*'
+
+springdoc:
+  packagesToScan: com.example.gateway.api
+
+
