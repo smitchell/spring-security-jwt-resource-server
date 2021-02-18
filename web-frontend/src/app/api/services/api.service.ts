@@ -9,6 +9,7 @@ import { RequestBuilder } from '../request-builder';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
+import { JwtToken } from '../models/jwt-token';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +23,9 @@ export class ApiService extends BaseService {
   }
 
   /**
-   * Path part for operation apiExchangeTokenGet
+   * Path part for operation exchangeTokenGet
    */
-  static readonly ApiExchangeTokenGetPath = '/api/exchangeToken';
+  static readonly ExchangeTokenGetPath = '/exchangeToken';
 
   /**
    * Returns a jwt token.
@@ -32,24 +33,26 @@ export class ApiService extends BaseService {
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiExchangeTokenGet()` instead.
+   * To access only the response body, use `exchangeTokenGet()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiExchangeTokenGet$Response(params?: {
-  }): Observable<StrictHttpResponse<string>> {
+  exchangeTokenGet$Response(params: {
+    authorizationCode: string;
+  }): Observable<StrictHttpResponse<JwtToken>> {
 
-    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiExchangeTokenGetPath, 'get');
+    const rb = new RequestBuilder(this.rootUrl, ApiService.ExchangeTokenGetPath, 'get');
     if (params) {
+      rb.query('authorizationCode', params.authorizationCode, {});
     }
 
     return this.http.request(rb.build({
-      responseType: 'text',
-      accept: 'text/plain'
+      responseType: 'json',
+      accept: 'application/json'
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
-        return r as StrictHttpResponse<string>;
+        return r as StrictHttpResponse<JwtToken>;
       })
     );
   }
@@ -60,15 +63,16 @@ export class ApiService extends BaseService {
    *
    *
    * This method provides access to only to the response body.
-   * To access the full response (for headers, for example), `apiExchangeTokenGet$Response()` instead.
+   * To access the full response (for headers, for example), `exchangeTokenGet$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiExchangeTokenGet(params?: {
-  }): Observable<string> {
+  exchangeTokenGet(params: {
+    authorizationCode: string;
+  }): Observable<JwtToken> {
 
-    return this.apiExchangeTokenGet$Response(params).pipe(
-      map((r: StrictHttpResponse<string>) => r.body as string)
+    return this.exchangeTokenGet$Response(params).pipe(
+      map((r: StrictHttpResponse<JwtToken>) => r.body as JwtToken)
     );
   }
 

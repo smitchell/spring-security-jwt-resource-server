@@ -27,12 +27,13 @@ public class GatewayApiTest {
                 .isOk();
 
         MockHttpServletRequestBuilder builder =
-                MockMvcRequestBuilders.get("/api/exchangeToken/12345")
+                MockMvcRequestBuilders.get("/exchangeToken")
+                        .requestAttr("authorizationCode", "abcd")
                         .contentType(MediaType.APPLICATION_JSON);
 
-        // Need to mock the call to the authorization service
+        // TODO - Need to mock the call to the authorization service
         this.mockMvc.perform(builder)
-                .andExpect(ok);
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
 }

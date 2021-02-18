@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ApiService} from '../../api/services/api.service';
+import {JwtToken} from '../../api/models/jwt-token';
 
 @Component({
   selector: 'app-authorized',
@@ -49,7 +50,7 @@ export class AuthorizedComponent implements OnInit {
     const params = {authorizationCode: this.code};
     console.log('calling apiService.authenticateGet');
 
-    this.apiService.apiExchangeTokenGet$Response(params).subscribe(
+    this.apiService.exchangeTokenGet(params).subscribe(
       success => this.handleUserData(success),
       error => this.handleError(error)
     );
@@ -67,10 +68,14 @@ export class AuthorizedComponent implements OnInit {
     this.router.navigate(['error'],  { queryParams: { errorMsg }});
   }
 
-  handleUserData(userData: any): void {
-    console.log('handleUserData()');
-    const tokenStr = 'Bearer ' + userData.token;
-    sessionStorage.setItem('token', tokenStr);
+  handleUserData(jwtToken: JwtToken): void {
+    console.log('handleUserData() <--- ' + JSON.stringify(jwtToken));
+    if (jwtToken && jwtToken.access_token && jwtToken.access_token.length > 0) {
+      const tokenStr = 'Bearer ' + jwtToken.access_token;
+      sessionStorage.setItem('token', tokenStr);
+    } else {
+      sessionStorage.removeItem('token');
+    }
     this.router.navigate(['/']);
   }
 

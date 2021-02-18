@@ -1,7 +1,5 @@
 package com.example.demo.springsecurity.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;

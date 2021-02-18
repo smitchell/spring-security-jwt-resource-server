@@ -1,13 +1,14 @@
 package com.example.gateway.api;
 
 import com.example.gateway.controllers.SecurityController;
+import com.example.gateway.models.JwtToken;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -22,17 +23,23 @@ public class GatewayApi {
         this.securityController = securityController;
     }
 
-    @GetMapping("/api/exchangeToken/{authorizationCode}")
-    public ResponseEntity<String> exchangeToken(@PathVariable final String authorizationCode) {
+    @GetMapping("/exchangeToken")
+    public ResponseEntity<String> exchangeToken(@RequestParam final String authorizationCode) {
         log.info("authenticate <-- ".concat(authorizationCode));
-        Optional<String> tokenOption = securityController.exchangeToken(authorizationCode);
-        String token = "";
+        Optional<JwtToken> tokenOption = securityController.exchangeToken(authorizationCode);
+        String token = null;
         if (tokenOption.isPresent()) {
-            token = tokenOption.get();
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                token = mapper.writeValueAsString(tokenOption.get());
+            } catch (JsonProcessingException e) {
+                log.warn(e.getMessage());
+            }
         }
+
         return ResponseEntity
                 .ok()
-                .contentType(MediaType.TEXT_PLAIN)
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(token);
     }
 

@@ -7,15 +7,47 @@ servers:
   - url: http://localhost:5005
     description: Test server
 paths:
-  /api/exchangeToken:
+  /exchangeToken:
     get:
       summary: Returns a jwt token
+      parameters:
+        - in: query
+          name: authorizationCode
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: The jwt token
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/JwtToken'
+components:
+  schemas:
+
+    JwtToken:
+      type: object
+      description: Unencoded JWT toekn
+      properties:
+        id:
+          type: string
+          description: The UUID of the the host record.
+        access_token:
+          type: string
+          description: JWT access toekn
+        token_type:
+          type: string
+          description: The type of access token
+        expires_in:
+          type: number
+          description: Token expiration
+        refresh_token:
+          type: string
+          description: The referesh token
+        scope:
+          type: string
+          description: The token scope
+
 
 

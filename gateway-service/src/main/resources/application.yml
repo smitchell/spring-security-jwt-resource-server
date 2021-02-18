@@ -27,4 +27,8 @@ management:
 springdoc:
   packagesToScan: com.example.gateway.api
 
+resource-client-id: gateway-client
+resource-client-secret: client-secret
+authorization-server-url: http://localhost:5000
+
 
