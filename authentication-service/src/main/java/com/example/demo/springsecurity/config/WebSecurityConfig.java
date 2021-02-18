@@ -42,10 +42,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .logout()
                 .logoutSuccessUrl("http://localhost:4200/")
                 .permitAll();
-//                .and()
-//            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
-//            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
-//            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // @formatter:on
 
     }

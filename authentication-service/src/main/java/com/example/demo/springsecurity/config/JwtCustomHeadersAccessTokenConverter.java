@@ -1,5 +1,7 @@
 package com.example.demo.springsecurity.config;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -7,12 +9,15 @@ import org.springframework.security.oauth2.common.util.JsonParser;
 import org.springframework.security.oauth2.common.util.JsonParserFactory;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.util.Assert;
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
+@Configuration
 public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverter {
 
     private Map<String, String> customHeaders = new HashMap<>();

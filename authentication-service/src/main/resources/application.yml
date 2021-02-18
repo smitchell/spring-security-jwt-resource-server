@@ -3,13 +3,6 @@ server:
   port: 5000
 
 spring:
-  datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create
-    open-in-view: false
   profiles:
     active: default
   ldap:
@@ -32,3 +25,8 @@ management:
       exposure:
         include: '*'
 
+  security:
+    oauth2:
+      client:
+        client-id: gateway-client
+        client-secret: client-secret
