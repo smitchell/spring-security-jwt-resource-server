@@ -25,7 +25,7 @@ public class GatewayApi {
     @Autowired
     public GatewayApi(
             final BuildProperties buildProperties,
-            SecurityController securityController) {
+            final SecurityController securityController) {
         this.buildProperties = buildProperties;
         this.securityController = securityController;
     }

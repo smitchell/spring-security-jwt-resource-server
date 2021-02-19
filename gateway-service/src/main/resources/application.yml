@@ -3,23 +3,21 @@
 server:
   port: 5005
 
-security:
-  oauth2:
-    resource:
-      jwk:
-        key-set-uri: http://localhost:5000/.well-known/jwks.json
-    client:
-      client-id: gateway-client
-      client-secret: client-secret
-
 spring:
   profiles:
     active: development
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          jwk-set-uri: http://localhost:5000/.well-known/jwks.json
+  security:
+    oauth2:
+      client:
+        registration:
+          auth-server:
+            client-id: gateway-client
+            client-secret: gateway-secret
+            scopes: read:user
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5000/.well-known/jwks.json
+
 
 logging:
   level:

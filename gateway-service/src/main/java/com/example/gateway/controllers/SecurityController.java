@@ -38,7 +38,7 @@ public class SecurityController {
     }
 
     public RestTemplate clientRestTemplate(RestTemplateBuilder builder) {
-        return builder.basicAuthorization("gateway_client", "client_secret").build();
+        return builder.basicAuthentication("gateway_client", "client_secret").build();
     }
 
     public Optional<JwtToken> exchangeToken(final String authorizationCode) {
