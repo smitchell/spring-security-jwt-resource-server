@@ -22,12 +22,11 @@ export class AuthenticationService {
   }
 
   isUserLoggedIn(): boolean {
-    const user = sessionStorage.getItem('username');
-    return !(user === null);
+    return sessionStorage.getItem('token') !== null;
   }
 
   logOut(): void {
-    sessionStorage.removeItem('username');
+    sessionStorage.removeItem('token');
   }
 }
 

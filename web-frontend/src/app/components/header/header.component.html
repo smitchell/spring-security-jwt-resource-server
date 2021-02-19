@@ -4,7 +4,8 @@
     <span class="example-fill-remaining-space"></span>
     <span class="align-center"></span>
     <span class="example-spacer"></span>
-    <a mat-button *ngIf="!loginService.isUserLoggedIn()" routerLink="/login" class="nav-link">Login</a>
-    <a mat-button *ngIf="loginService.isUserLoggedIn()" routerLink="/logout" class="nav-link">LogOut</a>
+    <div style="width: 100%">
+    <a style="float: right" mat-button *ngIf="loginService.isUserLoggedIn()" routerLink="/logout" class="nav-link">LogOut</a>
+    </div>
   </mat-toolbar-row>
 </mat-toolbar>

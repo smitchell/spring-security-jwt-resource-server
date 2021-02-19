@@ -144,6 +144,7 @@ public class AuthenticatingLdapApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.keys", hasSize(1)))
+                .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].kty").value("RSA"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].e").value("AQAB"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].kid").value("example-key-id"))

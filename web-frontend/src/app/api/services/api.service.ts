@@ -9,6 +9,7 @@ import { RequestBuilder } from '../request-builder';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
+import { BuildInfo } from '../models/build-info';
 import { JwtToken } from '../models/jwt-token';
 
 @Injectable({
@@ -73,6 +74,57 @@ export class ApiService extends BaseService {
 
     return this.exchangeTokenGet$Response(params).pipe(
       map((r: StrictHttpResponse<JwtToken>) => r.body as JwtToken)
+    );
+  }
+
+  /**
+   * Path part for operation apiBuildInfoGet
+   */
+  static readonly ApiBuildInfoGetPath = '/api/buildInfo';
+
+  /**
+   * Returns the build information.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiBuildInfoGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiBuildInfoGet$Response(params?: {
+  }): Observable<StrictHttpResponse<BuildInfo>> {
+
+    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiBuildInfoGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'application/json'
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<BuildInfo>;
+      })
+    );
+  }
+
+  /**
+   * Returns the build information.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiBuildInfoGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiBuildInfoGet(params?: {
+  }): Observable<BuildInfo> {
+
+    return this.apiBuildInfoGet$Response(params).pipe(
+      map((r: StrictHttpResponse<BuildInfo>) => r.body as BuildInfo)
     );
   }
 

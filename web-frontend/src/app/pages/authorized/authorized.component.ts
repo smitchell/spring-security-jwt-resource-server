@@ -69,8 +69,8 @@ export class AuthorizedComponent implements OnInit {
   }
 
   handleUserData(jwtToken: JwtToken): void {
-    console.log('handleUserData() <--- ' + JSON.stringify(jwtToken));
     if (jwtToken && jwtToken.access_token && jwtToken.access_token.length > 0) {
+      console.log('Authorization code successfully exchanged for an access token');
       const tokenStr = 'Bearer ' + jwtToken.access_token;
       sessionStorage.setItem('token', tokenStr);
     } else {

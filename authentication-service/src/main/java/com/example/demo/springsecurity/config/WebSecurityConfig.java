@@ -28,14 +28,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .requestMatchers()
-                .antMatchers("/",  "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**", "/.well-known/jwks.json")
+                .antMatchers("/",  "/actuator/**", "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**", "/.well-known/jwks.json", "/oauth/check_token")
                 .and()
             .authorizeRequests()
-                .antMatchers("/", "/actuator/**", "/.well-known/jwks.json").permitAll()
+                .antMatchers("/", "/actuator/**", "/.well-known/jwks.json", "/oauth/check_token").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
-                .loginPage("/login")
+            .loginPage("/login")
                 .permitAll()
                 .defaultSuccessUrl("http://localhost:4200/authorized", true)
                 .and()

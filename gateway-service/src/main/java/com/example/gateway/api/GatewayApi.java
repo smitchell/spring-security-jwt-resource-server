@@ -6,9 +6,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
@@ -17,9 +20,13 @@ import java.util.Optional;
 public class GatewayApi {
 
     private final SecurityController securityController;
+    private final BuildProperties buildProperties;
 
     @Autowired
-    public GatewayApi(SecurityController securityController) {
+    public GatewayApi(
+            final BuildProperties buildProperties,
+            SecurityController securityController) {
+        this.buildProperties = buildProperties;
         this.securityController = securityController;
     }
 
@@ -41,6 +48,11 @@ public class GatewayApi {
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(token);
+    }
+
+    @GetMapping("/api/buildInfo")
+    public BuildProperties buildInfo() {
+        return this.buildProperties;
     }
 
 }
