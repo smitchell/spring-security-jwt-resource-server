@@ -1,0 +1,12 @@
+.small-spacer {
+  flex: 1 1 auto;
+}
+
+::ng-deep .mat-card-actions {
+  background-color: #EAEAF6;
+}
+
+.mat-button {
+  margin-bottom: 8px !important;
+  margin-right: 8px !important;
+}

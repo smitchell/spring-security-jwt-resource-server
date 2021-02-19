@@ -1,0 +1,38 @@
+---
+
+server:
+  port: 5005
+
+spring:
+  profiles:
+    active: development
+  security:
+    oauth2:
+      client:
+        registration:
+          auth-server:
+            client-id: gateway-client
+            client-secret: gateway-secret
+            scopes: read:user
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:5000/.well-known/jwks.json
+
+
+logging:
+  level:
+    ROOT: ERROR
+    org.springframework.security: TRACE
+    org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+resource-client-id: gateway-client
+resource-client-secret: client-secret
+authorization-server-url: http://localhost:5000
+
+

@@ -1,13 +1,8 @@
 package com.example.demo.springsecurity.config;
 
-import com.example.demo.springsecurity.filter.JwtAuthenticationFilter;
-import com.example.demo.springsecurity.filter.JwtAuthorizationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -17,14 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Order(-10)
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private final String privateKey;
-
-    @Autowired
-    public WebSecurityConfig(
-            @Value("${keypair.private-key}") final String privateKey) {
-        this.privateKey = privateKey;
-    }
-
 
     @Override
     public void configure(WebSecurity web) throws Exception {
@@ -41,23 +28,22 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .requestMatchers()
-                .antMatchers("/",  "/oauth", "/login",  "/api/authenticate", "/oauth/authorize")
+                .antMatchers("/",  "/actuator/**", "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**", "/.well-known/jwks.json", "/oauth/check_token")
                 .and()
             .authorizeRequests()
-                .antMatchers("/").permitAll()
+                .antMatchers("/", "/actuator/**", "/.well-known/jwks.json", "/oauth/check_token").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
-                .loginPage("/login")
+            .loginPage("/login")
                 .permitAll()
+                .defaultSuccessUrl("http://localhost:4200/authorized", true)
                 .and()
             .logout()
-                .logoutSuccessUrl("http://localhost:9001")
-                .permitAll()
-                .and()
-            .addFilter(new JwtAuthenticationFilter(privateKey, authenticationManager()))
-            .addFilter(new JwtAuthorizationFilter(privateKey, authenticationManager()));
+                .logoutSuccessUrl("http://localhost:4200/")
+                .permitAll();
         // @formatter:on
+
     }
 
 

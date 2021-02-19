@@ -22,7 +22,7 @@ public class ConsumerService implements ClientDetailsService {
         consumer.setAccessTokenValiditySeconds(100);
         consumer.setRefreshTokenValiditySeconds(100);
         consumer.setClientId(clientId);
-        consumer.setRegisteredRedirectUrisCsv("http://localhost:9000/login,");
+        consumer.setRegisteredRedirectUrisCsv("http://localhost:4200/authorized");
         consumer.setClientSecret(new BCryptPasswordEncoder().encode("client-secret"));
         return consumer;
     }

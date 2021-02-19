@@ -15,17 +15,17 @@ public class GlobalAuthenticationConfig extends GlobalAuthenticationConfigurerAd
     public void init(AuthenticationManagerBuilder auth) throws Exception {
         // @formatter:off
         auth
-                .ldapAuthentication()
+            .ldapAuthentication()
                 .userDnPatterns("uid={0},ou=people")
                 .userSearchBase("ou=people")
                 .userSearchFilter("uid={0}")
                 .groupSearchBase("ou=groups")
                 .groupSearchFilter("uniqueMember={0}")
                 .groupRoleAttribute("ou")
-                .contextSource()
+            .contextSource()
                 .url("ldap://localhost:8389/dc=example,dc=com")
                 .and()
-                .passwordCompare()
+            .passwordCompare()
                 .passwordEncoder(new LdapShaPasswordEncoder())
                 .passwordAttribute("userPassword");
         // @formatter:on

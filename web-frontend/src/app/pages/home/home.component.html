@@ -1,0 +1,33 @@
+
+<div class="container-fluid p-4">
+  <mat-card>
+    <mat-card-header>
+      <h1 style="margin:0 auto;">Microservice Security Demo with Spring Security and In-memory LDAP Server</h1>
+    </mat-card-header>
+    <mat-card-actions align="end">
+      <button mat-button color="primary" class="ml-2" mat-flat-button aria-label="Load Gateway Build Info" (click)="onBuildInfo()"  >Load Gateway Build Info</button>
+    </mat-card-actions>
+    <mat-card-content *ngIf="buildInfo">
+      <mat-form-field appearance="standard">
+        <mat-label>Name</mat-label>
+        <input matInput disabled value="{{ buildInfo.name }}">
+      </mat-form-field>
+      <mat-form-field appearance="standard">
+        <mat-label>Group</mat-label>
+        <input matInput disabled value="{{ buildInfo.group }}">
+      </mat-form-field>
+      <mat-form-field appearance="standard">
+        <mat-label>Artifact</mat-label>
+        <input matInput disabled value="{{ buildInfo.artifact }}">
+      </mat-form-field>
+      <mat-form-field appearance="standard">
+        <mat-label>Version</mat-label>
+        <input matInput disabled value="{{ buildInfo.version }}">
+      </mat-form-field>
+      <mat-form-field appearance="standard">
+        <mat-label>Build Time</mat-label>
+        <input matInput disabled value="{{ buildInfo.time | date : 'medium' }}">
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+</div>

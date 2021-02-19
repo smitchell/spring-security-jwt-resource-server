@@ -1,0 +1,88 @@
+openapi: 3.0.0
+info:
+  title: Gateway Service API
+  description: REST API façade for the backend services.
+  version: '0.1'
+servers:
+  - url: http://localhost:5005
+    description: Test server
+paths:
+
+  /exchangeToken:
+    get:
+      summary: Returns a jwt token
+      parameters:
+        - in: query
+          name: authorizationCode
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: The jwt token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtToken'
+
+  /api/buildInfo:
+    get:
+      summary: Returns the build information
+      responses:
+        '200':
+          description: The build information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildInfo'
+components:
+  schemas:
+
+    JwtToken:
+      type: object
+      description: Unencoded JWT toekn
+      properties:
+        id:
+          type: string
+          description: The UUID of the the host record.
+        access_token:
+          type: string
+          description: JWT access toekn
+        token_type:
+          type: string
+          description: The type of access token
+        expires_in:
+          type: number
+          description: Token expiration
+        refresh_token:
+          type: string
+          description: The referesh token
+        scope:
+          type: string
+          description: The token scope
+
+    BuildInfo:
+      type: object
+      description: Service Build Info
+      required:
+        - name
+        - group
+        - artifact
+        - version
+      properties:
+        name:
+          type: string
+          description: The service name
+        group:
+          type: string
+          description: The service group
+        artifact:
+          type: string
+          description: The build artificat name.
+        version:
+          type: string
+          description: The build version.
+        time:
+          type: string
+          format: date-time
+          description: The build time
