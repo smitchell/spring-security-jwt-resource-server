@@ -28,10 +28,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .requestMatchers()
-                .antMatchers("/",  "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**")
+                .antMatchers("/",  "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**", "/.well-known/jwks.json")
                 .and()
             .authorizeRequests()
-                .antMatchers("/", "/actuator/**").permitAll()
+                .antMatchers("/", "/actuator/**", "/.well-known/jwks.json").permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()

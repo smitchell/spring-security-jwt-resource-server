@@ -31,7 +31,9 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MimeType;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashSet;
@@ -39,6 +41,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -100,21 +103,6 @@ public class AuthenticatingLdapApplicationTests {
     }
 
 
-//    @Test
-//    public void oauthToken() throws Exception {
-//        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-//        params.add("grant_type", "password");
-//        params.add("client_id", "dummy-client");
-//        params.add("client_secret", "client-secret");
-//        params.add("username", USER_NAME);
-//        params.add("password", PASSWORD);
-//
-//        MvcResult result = mockMvc.perform(post("/oauth/token")
-//                .with(httpBasic("dummy-client", "client-secret"))
-//                .params(params))
-//                .andExpect(status().is2xxSuccessful())
-//                .andReturn();
-//    }
 
     @Test
     public void authorizationRedirects() throws Exception {
@@ -148,6 +136,19 @@ public class AuthenticatingLdapApplicationTests {
                 .param("redirect_uri", "https://test.domain.com/context2")
                 .with(user(USER_NAME)))
                 .andExpect(forwardedUrl("/oauth/confirm_access"));
+    }
+
+    @Test
+    public void getJwksKeys() throws Exception {
+        mockMvc.perform(get("/.well-known/jwks.json"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.keys", hasSize(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].kty").value("RSA"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].e").value("AQAB"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].kid").value("example-key-id"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.keys[0].alg").value("RS256"))
+                .andReturn().getResponse().getContentAsString();
     }
 
     /**

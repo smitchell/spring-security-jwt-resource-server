@@ -8,7 +8,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:5000/authentication-service/auth/realms/example
+          issuer-uri: http://localhost:5000/.well-known/jwks.json
   profiles:
     active: development
 
