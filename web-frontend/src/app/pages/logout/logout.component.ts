@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {ApiService} from '../../api/services/api.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-logout',
@@ -16,9 +15,22 @@ export class LogoutComponent implements OnInit {
   }
 
   logout(): void {
+    console.log('Perform logout');
     sessionStorage.clear();
-    localStorage.clear();
+    console.log('Token is ' + sessionStorage.getItem('token'));
+    this.deleteAllCookies();
     this.router.navigate(['/']);
+  }
+
+  deleteAllCookies(): void {
+    const cookies = document.cookie.split(';');
+
+    for (const cookie of cookies) {
+      console.log('cookie ' + cookie);
+      const eqPos = cookie.indexOf('=');
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
   }
 
 }

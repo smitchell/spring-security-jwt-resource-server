@@ -27,6 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
+                .csrf().disable()
             .requestMatchers()
                 .antMatchers("/",  "/actuator/**", "/oauth**", "/login**",  "/api/authenticate**", "/oauth/authorize**", "/.well-known/jwks.json", "/oauth/check_token")
                 .and()
@@ -37,7 +38,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .formLogin()
             .loginPage("/login")
                 .permitAll()
-                .defaultSuccessUrl("http://localhost:4200/authorized", true)
+//                .defaultSuccessUrl("http://localhost:4200/authorized", false)
                 .and()
             .logout()
                 .logoutSuccessUrl("http://localhost:4200/")
