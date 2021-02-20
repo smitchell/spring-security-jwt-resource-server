@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
+import {CookieService} from 'ngx-cookie-service';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-logout',
@@ -8,7 +10,10 @@ import {Router} from '@angular/router';
 })
 export class LogoutComponent implements OnInit {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+              private http: HttpClient,
+              private cookieService: CookieService) {
+  }
 
   ngOnInit(): void {
     this.logout();
@@ -17,20 +22,11 @@ export class LogoutComponent implements OnInit {
   logout(): void {
     console.log('Perform logout');
     sessionStorage.clear();
-    console.log('Token is ' + sessionStorage.getItem('token'));
-    this.deleteAllCookies();
-    this.router.navigate(['/']);
+    localStorage.clear();
+    // this.cookieService.delete('JSESSIONID');
+    this.cookieService.deleteAll();
+    const url = 'http://localhost:5000/logout';
+    window.location.href = 'http://localhost:5000/logout';
+
   }
-
-  deleteAllCookies(): void {
-    const cookies = document.cookie.split(';');
-
-    for (const cookie of cookies) {
-      console.log('cookie ' + cookie);
-      const eqPos = cookie.indexOf('=');
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    }
-  }
-
 }

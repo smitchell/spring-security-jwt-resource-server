@@ -108,7 +108,6 @@ public class AuthenticatingLdapApplicationTests {
     public void authorizationRedirects() throws Exception {
         MvcResult result = mockMvc.perform(get("/oauth/authorize"))
                 .andExpect(status().isFound())
-//        .andExpect(header().string("Location", "http://localhost:8080/login"))
                 .andExpect(header().string("Location", "http://localhost/login"))
                 .andReturn();
     }
@@ -128,7 +127,7 @@ public class AuthenticatingLdapApplicationTests {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser("john")
     public void authorizationRedirectsAfterLogin() throws Exception {
         mockMvc.perform(get("/oauth/authorize")
                 .param("client_id", "dummy-client")
