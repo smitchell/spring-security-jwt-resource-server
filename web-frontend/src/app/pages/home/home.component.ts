@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../../api/services';
-import {GatewayMessage, IntrospectToken} from '../../api/models';
+import {GatewayMessage} from '../../api/models';
+import {HttpErrorResponse} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -9,35 +12,49 @@ import {GatewayMessage, IntrospectToken} from '../../api/models';
 })
 export class HomeComponent implements OnInit {
   gatewayMessage: GatewayMessage;
-  introspectToken: IntrospectToken;
+  busy: boolean;
 
-  constructor(private apiService: ApiService) {
+  constructor(private apiService: ApiService,
+              private toastr: ToastrService,
+              private router: Router
+  ) {
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   onGatewayMessage(): void {
+    this.busy = true;
+    this.gatewayMessage = undefined;
     this.apiService.apiGatewayMessageGet()
       .subscribe(
         res => {
+          this.busy = false;
           this.gatewayMessage = res;
         },
         error => {
-          console.error(error);
+          this.handleError(error);
         }
       );
   }
 
-  onIntrospectToken(): void {
-    this.apiService.apiIntrospectTokenGet()
-      .subscribe(
-        res => {
-          this.introspectToken = res;
-        },
-        error => {
-          console.error(error);
+  handleError(error: any): void {
+    this.busy = false;
+    if (error instanceof HttpErrorResponse) {
+      if (error.error instanceof ErrorEvent) {
+        console.error('Error Event');
+      } else {
+        console.log(`error status : ${error.status} ${error.statusText}`);
+        switch (error.status) {
+          case 401:      // UNAUTHORIZED - Route them hope so the guard condition is re-appliced.
+            this.router.navigateByUrl('/');
+            break;
+          case 403:     // FORBIDDEN
+            this.toastr.error('You lack the required permissions for this resource.', 'FORBIDDEN');
+            break;
         }
-      );
+      }
+    } else {
+      this.toastr.error('There was an error fetching the Gateway message.', 'ERROR');
+    }
   }
 }
