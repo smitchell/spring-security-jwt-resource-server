@@ -22,7 +22,7 @@ import {TokenInterceptor} from './components/auth/token.interceptor';
 import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { ErrorComponent } from './pages/error/error.component';
 import {CookieService} from 'ngx-cookie-service';
-import {JwtToken} from './api/models';
+import { ToastrModule } from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -32,7 +32,7 @@ import {JwtToken} from './api/models';
     HeaderComponent,
     FooterComponent,
     AuthorizedComponent,
-    ErrorComponent
+    ErrorComponent,
   ],
   imports: [
     AppRoutingModule,
@@ -48,7 +48,8 @@ import {JwtToken} from './api/models';
     MatCardModule,
     MatButtonModule,
     MatFormFieldModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     CanDeactivateGuard,

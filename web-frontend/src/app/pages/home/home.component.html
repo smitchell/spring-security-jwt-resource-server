@@ -8,6 +8,7 @@
       <button mat-button color="primary" class="ml-2" mat-flat-button aria-label="Load Gateway Build Info" (click)="onGatewayMessage()"  >Load Gateway Message</button>
     </mat-card-actions>
     <mat-card-content *ngIf="gatewayMessage">
+      <mat-spinner style="margin:0 auto;" *ngIf="busy"></mat-spinner>
       <mat-form-field appearance="standard">
         <mat-label>Version</mat-label>
         <input matInput disabled value="{{ gatewayMessage.version }}">
