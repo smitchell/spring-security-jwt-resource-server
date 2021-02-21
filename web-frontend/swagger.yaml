@@ -8,7 +8,7 @@ servers:
     description: Test server
 paths:
 
-  /exchangeToken:
+  /api/exchangeToken:
     get:
       summary: Returns a jwt token
       parameters:
@@ -25,6 +25,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/JwtToken'
 
+  /api/introspectToken:
+    get:
+      summary: Returns the token introspection
+      responses:
+        '200':
+          description: The jwt token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntrospectToken'
+
   /api/gatewayMessage:
     get:
       summary: Returns the gateway information
@@ -37,6 +48,23 @@ paths:
                 $ref: '#/components/schemas/GatewayMessage'
 components:
   schemas:
+
+    IntrospectToken:
+      type: object
+      description: Values from token introspection
+      properties:
+        sub:
+          type: string
+          description: The subject
+        scope:
+          type: string
+          description: The token scope
+        active:
+          type: boolean
+          description: True if the token is active.
+        exp:
+          type: string
+          format: date-time
 
     JwtToken:
       type: object
@@ -64,9 +92,6 @@ components:
     GatewayMessage:
       type: object
       description: Gateway Info
-      required:
-        - version
-        - message
       properties:
         version:
           type: number

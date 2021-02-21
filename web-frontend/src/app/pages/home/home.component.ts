@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../../api/services';
-import {GatewayMessage} from '../../api/models';
+import {GatewayMessage, IntrospectToken} from '../../api/models';
 
 @Component({
   selector: 'app-home',
@@ -9,7 +9,10 @@ import {GatewayMessage} from '../../api/models';
 })
 export class HomeComponent implements OnInit {
   gatewayMessage: GatewayMessage;
-  constructor(private apiService: ApiService) { }
+  introspectToken: IntrospectToken;
+
+  constructor(private apiService: ApiService) {
+  }
 
   ngOnInit(): void {
   }
@@ -26,4 +29,15 @@ export class HomeComponent implements OnInit {
       );
   }
 
+  onIntrospectToken(): void {
+    this.apiService.apiIntrospectTokenGet()
+      .subscribe(
+        res => {
+          this.introspectToken = res;
+        },
+        error => {
+          console.error(error);
+        }
+      );
+  }
 }

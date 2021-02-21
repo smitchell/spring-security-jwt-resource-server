@@ -9,10 +9,10 @@ export interface GatewayMessage {
   /**
    * The gateway message
    */
-  message: string;
+  message?: string;
 
   /**
    * The gateway version
    */
-  version: number;
+  version?: number;
 }

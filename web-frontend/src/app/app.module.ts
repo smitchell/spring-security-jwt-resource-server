@@ -22,6 +22,7 @@ import {TokenInterceptor} from './components/auth/token.interceptor';
 import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { ErrorComponent } from './pages/error/error.component';
 import {CookieService} from 'ngx-cookie-service';
+import {JwtToken} from './api/models';
 
 @NgModule({
   declarations: [

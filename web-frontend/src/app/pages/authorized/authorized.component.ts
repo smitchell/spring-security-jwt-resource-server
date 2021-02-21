@@ -51,7 +51,7 @@ export class AuthorizedComponent implements OnInit {
     const params = {authorizationCode: this.code};
     console.log('calling apiService.authenticateGet');
 
-    this.apiService.exchangeTokenGet(params).subscribe(
+    this.apiService.apiExchangeTokenGet(params).subscribe(
       success => this.handleUserData(success),
       error => this.handleError(error)
     );
@@ -72,7 +72,7 @@ export class AuthorizedComponent implements OnInit {
   handleUserData(jwtToken: JwtToken): void {
     if (jwtToken && jwtToken.access_token && jwtToken.access_token.length > 0) {
       console.log('Authorization code successfully exchanged for an access token');
-      const tokenStr = 'Bearer ' + jwtToken.access_token;
+      const tokenStr = jwtToken.access_token;
       sessionStorage.setItem('token', tokenStr);
     } else {
       sessionStorage.removeItem('token');

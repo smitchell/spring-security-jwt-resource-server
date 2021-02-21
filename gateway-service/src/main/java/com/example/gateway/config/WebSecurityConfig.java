@@ -25,15 +25,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-                .authorizeRequests()
-                .antMatchers("/actuator/**", "/exchangeToken**").permitAll()
+            .cors()
                 .and()
-                .authorizeRequests((authorizeRequests) ->
-                        authorizeRequests
-                                .antMatchers(HttpMethod.GET, "/api/gatewayMessage/**").hasAuthority("SCOPE_trust")
-                                .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+            .authorizeRequests()
+                .antMatchers("/actuator/**", "/api/exchangeToken**").permitAll()
+                .and()
+            .authorizeRequests((authorizeRequests) ->
+                    authorizeRequests
+                            .antMatchers(HttpMethod.GET, "/api/**").hasAuthority("SCOPE_trust")
+                            .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         // @formatter:on
     }
 

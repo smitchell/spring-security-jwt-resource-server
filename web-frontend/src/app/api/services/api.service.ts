@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
 import { GatewayMessage } from '../models/gateway-message';
+import { IntrospectToken } from '../models/introspect-token';
 import { JwtToken } from '../models/jwt-token';
 
 @Injectable({
@@ -24,9 +25,9 @@ export class ApiService extends BaseService {
   }
 
   /**
-   * Path part for operation exchangeTokenGet
+   * Path part for operation apiExchangeTokenGet
    */
-  static readonly ExchangeTokenGetPath = '/exchangeToken';
+  static readonly ApiExchangeTokenGetPath = '/api/exchangeToken';
 
   /**
    * Returns a jwt token.
@@ -34,15 +35,15 @@ export class ApiService extends BaseService {
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `exchangeTokenGet()` instead.
+   * To access only the response body, use `apiExchangeTokenGet()` instead.
    *
    * This method doesn't expect any request body.
    */
-  exchangeTokenGet$Response(params: {
+  apiExchangeTokenGet$Response(params: {
     authorizationCode: string;
   }): Observable<StrictHttpResponse<JwtToken>> {
 
-    const rb = new RequestBuilder(this.rootUrl, ApiService.ExchangeTokenGetPath, 'get');
+    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiExchangeTokenGetPath, 'get');
     if (params) {
       rb.query('authorizationCode', params.authorizationCode, {});
     }
@@ -64,16 +65,67 @@ export class ApiService extends BaseService {
    *
    *
    * This method provides access to only to the response body.
-   * To access the full response (for headers, for example), `exchangeTokenGet$Response()` instead.
+   * To access the full response (for headers, for example), `apiExchangeTokenGet$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  exchangeTokenGet(params: {
+  apiExchangeTokenGet(params: {
     authorizationCode: string;
   }): Observable<JwtToken> {
 
-    return this.exchangeTokenGet$Response(params).pipe(
+    return this.apiExchangeTokenGet$Response(params).pipe(
       map((r: StrictHttpResponse<JwtToken>) => r.body as JwtToken)
+    );
+  }
+
+  /**
+   * Path part for operation apiIntrospectTokenGet
+   */
+  static readonly ApiIntrospectTokenGetPath = '/api/introspectToken';
+
+  /**
+   * Returns the token introspection.
+   *
+   *
+   *
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiIntrospectTokenGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiIntrospectTokenGet$Response(params?: {
+  }): Observable<StrictHttpResponse<IntrospectToken>> {
+
+    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiIntrospectTokenGetPath, 'get');
+    if (params) {
+    }
+
+    return this.http.request(rb.build({
+      responseType: 'json',
+      accept: 'application/json'
+    })).pipe(
+      filter((r: any) => r instanceof HttpResponse),
+      map((r: HttpResponse<any>) => {
+        return r as StrictHttpResponse<IntrospectToken>;
+      })
+    );
+  }
+
+  /**
+   * Returns the token introspection.
+   *
+   *
+   *
+   * This method provides access to only to the response body.
+   * To access the full response (for headers, for example), `apiIntrospectTokenGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiIntrospectTokenGet(params?: {
+  }): Observable<IntrospectToken> {
+
+    return this.apiIntrospectTokenGet$Response(params).pipe(
+      map((r: StrictHttpResponse<IntrospectToken>) => r.body as IntrospectToken)
     );
   }
 

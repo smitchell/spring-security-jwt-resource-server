@@ -8,16 +8,11 @@ spring:
     active: development
   security:
     oauth2:
-      client:
-        registration:
-          auth-server:
-            client-id: gateway-client
-            client-secret: gateway-secret
-            scopes: read:user
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:5000/.well-known/jwks.json
-
+    filter:
+      order: -100
 
 logging:
   level:
