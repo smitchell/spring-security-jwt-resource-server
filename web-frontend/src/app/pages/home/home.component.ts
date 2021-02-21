@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import {BuildInfo} from '../../api/models/build-info';
+import {Component, OnInit} from '@angular/core';
 import {ApiService} from '../../api/services';
+import {GatewayMessage, IntrospectToken} from '../../api/models';
 
 @Component({
   selector: 'app-home',
@@ -8,17 +8,20 @@ import {ApiService} from '../../api/services';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  buildInfo: BuildInfo;
-  constructor(private apiService: ApiService) { }
+  gatewayMessage: GatewayMessage;
+  introspectToken: IntrospectToken;
+
+  constructor(private apiService: ApiService) {
+  }
 
   ngOnInit(): void {
   }
 
-  onBuildInfo(): void {
-    this.apiService.apiBuildInfoGet()
+  onGatewayMessage(): void {
+    this.apiService.apiGatewayMessageGet()
       .subscribe(
         res => {
-          this.buildInfo = res;
+          this.gatewayMessage = res;
         },
         error => {
           console.error(error);
@@ -26,4 +29,15 @@ export class HomeComponent implements OnInit {
       );
   }
 
+  onIntrospectToken(): void {
+    this.apiService.apiIntrospectTokenGet()
+      .subscribe(
+        res => {
+          this.introspectToken = res;
+        },
+        error => {
+          console.error(error);
+        }
+      );
+  }
 }

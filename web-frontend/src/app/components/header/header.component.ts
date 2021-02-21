@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from '../../services/authentication.service';
 
 @Component({
@@ -8,7 +8,8 @@ import {AuthenticationService} from '../../services/authentication.service';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor(public loginService: AuthenticationService) { }
+  constructor(public loginService: AuthenticationService) {
+  }
 
   ngOnInit(): void {
   }

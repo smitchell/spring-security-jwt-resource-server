@@ -2,9 +2,9 @@
   <mat-toolbar-row>
     <span>Web Frontend</span>
     <span class="example-fill-remaining-space"></span>
-    <span class="align-center"></span>
     <span class="example-spacer"></span>
-    <div style="width: 100%">
+    <span style="margin:0 auto;" *ngIf="loginService.isUserLoggedIn()">Welcome, {{loginService.getName() | titlecase}}</span>
+    <div>
     <a style="float: right" mat-button *ngIf="loginService.isUserLoggedIn()" routerLink="/logout" class="nav-link">LogOut</a>
     </div>
   </mat-toolbar-row>

@@ -34,27 +34,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .requestMatchers()
+            .requestMatchers()
                 .antMatchers("/login", "/logout", "/oauth/authorize")
                 .and()
-                .authorizeRequests()
+            .authorizeRequests()
                 .mvcMatchers("/.well-known/jwks.json").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin()
+            .formLogin()
                 .loginPage("/login")
                 .permitAll()
                 .defaultSuccessUrl("http://localhost:4200/authorized", true)
                 .and()
-                .logout()
+            .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("http://localhost:4200/")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
                 .and()
-                .cors().disable()
-                .csrf().ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
+            .cors().disable()
+            .csrf().ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
     }
 
 

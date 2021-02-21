@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {map} from 'rxjs/operators';
+import jwt_decode from 'jwt-decode';
 import {Observable} from 'rxjs';
 
 @Injectable({
@@ -8,26 +8,32 @@ import {Observable} from 'rxjs';
 })
 export class AuthenticationService {
 
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
+  // httpOptions = {
+  //   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  // };
 
-  constructor(private httpClient: HttpClient) {
+  constructor() {
   }
 
-  exchangeToken(authenticationCode: string): Observable<any> {
-    console.log(`AuthenticationService exchangeToken <-- ${authenticationCode}`);
-    return this.httpClient
-      .get('http://localhost:5005/authenticate/' + authenticationCode, this.httpOptions);
-  }
+  // exchangeToken(authenticationCode: string): Observable<any> {
+  //   console.log(`AuthenticationService exchangeToken <-- ${authenticationCode}`);
+  //   return this.httpClient
+  //     .get('http://localhost:5005/authenticate/' + authenticationCode, this.httpOptions);
+  // }
 
   isUserLoggedIn(): boolean {
     return sessionStorage.getItem('token') !== null;
   }
 
-  logOut(): void {
-    sessionStorage.removeItem('token');
+  getName(): any {
+    const token = sessionStorage.getItem('token');
+    if (token) {
+      const decoded: any = jwt_decode(token);
+      return decoded.sub;
+    }
+    return null;
   }
+
 }
 
 

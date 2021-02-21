@@ -1,5 +1,6 @@
 package com.example.gateway.controllers;
 
+import com.example.gateway.models.IntrospectToken;
 import com.example.gateway.models.JwtToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -9,6 +10,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -74,4 +76,33 @@ public class SecurityController {
         return Optional.empty();
     }
 
+    public Optional<IntrospectToken> introspectToken(String token) {
+        log.info("introspectToken <-- ".concat(token));
+        final RestTemplate restTemplate = new RestTemplate();
+
+        // create auth credentials
+        final String authStr = this.resourceClientId.concat(":").concat(resourceClientSecret);
+        final String base64Creds = Base64.getEncoder().encodeToString(authStr.getBytes());
+        final HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic ".concat(base64Creds));
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/introspect"))
+                .queryParam("token", token);
+
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        try {
+            log.info("introspect GET to  ".concat(builder.toUriString()));
+            ResponseEntity<IntrospectToken> response = restTemplate.exchange(
+                    builder.toUriString(),
+                    HttpMethod.POST,
+                    entity,
+                    IntrospectToken.class);
+            if (response.getBody() != null) {
+                return Optional.of(response.getBody());
+            }
+        } catch (Exception e) {
+            log.error("Authentication Error", e);
+        }
+        return Optional.empty();
+    }
 }
