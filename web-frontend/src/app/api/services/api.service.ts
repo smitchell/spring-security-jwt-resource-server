@@ -9,7 +9,7 @@ import { RequestBuilder } from '../request-builder';
 import { Observable } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 
-import { BuildInfo } from '../models/build-info';
+import { GatewayMessage } from '../models/gateway-message';
 import { JwtToken } from '../models/jwt-token';
 
 @Injectable({
@@ -78,24 +78,24 @@ export class ApiService extends BaseService {
   }
 
   /**
-   * Path part for operation apiBuildInfoGet
+   * Path part for operation apiGatewayMessageGet
    */
-  static readonly ApiBuildInfoGetPath = '/api/buildInfo';
+  static readonly ApiGatewayMessageGetPath = '/api/gatewayMessage';
 
   /**
-   * Returns the build information.
+   * Returns the gateway information.
    *
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `apiBuildInfoGet()` instead.
+   * To access only the response body, use `apiGatewayMessageGet()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiBuildInfoGet$Response(params?: {
-  }): Observable<StrictHttpResponse<BuildInfo>> {
+  apiGatewayMessageGet$Response(params?: {
+  }): Observable<StrictHttpResponse<GatewayMessage>> {
 
-    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiBuildInfoGetPath, 'get');
+    const rb = new RequestBuilder(this.rootUrl, ApiService.ApiGatewayMessageGetPath, 'get');
     if (params) {
     }
 
@@ -105,26 +105,26 @@ export class ApiService extends BaseService {
     })).pipe(
       filter((r: any) => r instanceof HttpResponse),
       map((r: HttpResponse<any>) => {
-        return r as StrictHttpResponse<BuildInfo>;
+        return r as StrictHttpResponse<GatewayMessage>;
       })
     );
   }
 
   /**
-   * Returns the build information.
+   * Returns the gateway information.
    *
    *
    *
    * This method provides access to only to the response body.
-   * To access the full response (for headers, for example), `apiBuildInfoGet$Response()` instead.
+   * To access the full response (for headers, for example), `apiGatewayMessageGet$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  apiBuildInfoGet(params?: {
-  }): Observable<BuildInfo> {
+  apiGatewayMessageGet(params?: {
+  }): Observable<GatewayMessage> {
 
-    return this.apiBuildInfoGet$Response(params).pipe(
-      map((r: StrictHttpResponse<BuildInfo>) => r.body as BuildInfo)
+    return this.apiGatewayMessageGet$Response(params).pipe(
+      map((r: StrictHttpResponse<GatewayMessage>) => r.body as GatewayMessage)
     );
   }
 

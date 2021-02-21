@@ -1,52 +1,45 @@
 package com.example.gateway.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
-import java.util.Collection;
-
-@Configuration
+@EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final String AUTHORITY_PREFIX = "ROLE_";
-    private static final String CLAIM_ROLES = "roles";
+    private final String jwkSetUri;
+
+    @Autowired
+    public WebSecurityConfig(@Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri) {
+        this.jwkSetUri = jwkSetUri;
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // @formatter:off
         http
-                .cors().disable()
-                .requestMatchers()
-                .and()
                 .authorizeRequests()
                 .antMatchers("/actuator/**", "/exchangeToken**").permitAll()
                 .and()
-                .authorizeRequests(authorize -> authorize
-                        .antMatchers("/api/**" ).authenticated()
+                .authorizeRequests((authorizeRequests) ->
+                        authorizeRequests
+                                .antMatchers(HttpMethod.GET, "/api/gatewayMessage/**").hasAuthority("SCOPE_trust")
+                                .anyRequest().authenticated()
                 )
-                .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer
-                                .jwt(jwt ->
-                                        jwt.jwtAuthenticationConverter(getJwtAuthenticationConverter())
-                ));
-
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+        // @formatter:on
     }
 
-    private Converter<Jwt, AbstractAuthenticationToken> getJwtAuthenticationConverter() {
-        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(getJwtGrantedAuthoritiesConverter());
-        return jwtAuthenticationConverter;
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
     }
 
-    private Converter<Jwt, Collection<GrantedAuthority>> getJwtGrantedAuthoritiesConverter() {
-        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
-        converter.setAuthorityPrefix(AUTHORITY_PREFIX);
-        converter.setAuthoritiesClaimName(CLAIM_ROLES);
-        return converter;
-    }
 }

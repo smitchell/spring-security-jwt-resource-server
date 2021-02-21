@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {BuildInfo} from '../../api/models/build-info';
 import {ApiService} from '../../api/services';
+import {GatewayMessage} from '../../api/models';
 
 @Component({
   selector: 'app-home',
@@ -8,17 +8,17 @@ import {ApiService} from '../../api/services';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  buildInfo: BuildInfo;
+  gatewayMessage: GatewayMessage;
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
   }
 
-  onBuildInfo(): void {
-    this.apiService.apiBuildInfoGet()
+  onGatewayMessage(): void {
+    this.apiService.apiGatewayMessageGet()
       .subscribe(
         res => {
-          this.buildInfo = res;
+          this.gatewayMessage = res;
         },
         error => {
           console.error(error);

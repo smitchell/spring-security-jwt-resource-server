@@ -1,2 +1,2 @@
 export { JwtToken } from './models/jwt-token';
-export { BuildInfo } from './models/build-info';
+export { GatewayMessage } from './models/gateway-message';

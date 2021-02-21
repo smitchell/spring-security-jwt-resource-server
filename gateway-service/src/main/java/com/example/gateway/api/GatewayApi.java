@@ -1,12 +1,12 @@
 package com.example.gateway.api;
 
 import com.example.gateway.controllers.SecurityController;
+import com.example.gateway.models.GatewayMessage;
 import com.example.gateway.models.JwtToken;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +20,10 @@ import java.util.Optional;
 public class GatewayApi {
 
     private final SecurityController securityController;
-    private final BuildProperties buildProperties;
 
     @Autowired
     public GatewayApi(
-            final BuildProperties buildProperties,
             final SecurityController securityController) {
-        this.buildProperties = buildProperties;
         this.securityController = securityController;
     }
 
@@ -50,9 +47,9 @@ public class GatewayApi {
                 .body(token);
     }
 
-    @GetMapping("/api/buildInfo")
-    public BuildProperties buildInfo() {
-        return this.buildProperties;
+    @GetMapping("/api/gatewayMessage")
+    public GatewayMessage getGatewayMessage() {
+        return new GatewayMessage("1.0", "The gateway say hello");
     }
 
 }

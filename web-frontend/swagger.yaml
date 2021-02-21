@@ -25,16 +25,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/JwtToken'
 
-  /api/buildInfo:
+  /api/gatewayMessage:
     get:
-      summary: Returns the build information
+      summary: Returns the gateway information
       responses:
         '200':
-          description: The build information
+          description: The gateway information
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BuildInfo'
+                $ref: '#/components/schemas/GatewayMessage'
 components:
   schemas:
 
@@ -61,28 +61,16 @@ components:
           type: string
           description: The token scope
 
-    BuildInfo:
+    GatewayMessage:
       type: object
-      description: Service Build Info
+      description: Gateway Info
       required:
-        - name
-        - group
-        - artifact
         - version
+        - message
       properties:
-        name:
-          type: string
-          description: The service name
-        group:
-          type: string
-          description: The service group
-        artifact:
-          type: string
-          description: The build artificat name.
         version:
+          type: number
+          description: The gateway version
+        message:
           type: string
-          description: The build version.
-        time:
-          type: string
-          format: date-time
-          description: The build time
+          description: The gateway message
