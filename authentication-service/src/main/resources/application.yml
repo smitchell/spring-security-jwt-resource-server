@@ -24,12 +24,12 @@ management:
     web:
       exposure:
         include: '*'
-  endpoint:
-    info:
-      enabled: true
 
   security:
     oauth2:
       client:
         client-id: gateway-client
         client-secret: client-secret
+      authorizationserver:
+        jwt:
+          enabled: true

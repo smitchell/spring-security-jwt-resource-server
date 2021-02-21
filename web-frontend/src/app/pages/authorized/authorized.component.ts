@@ -37,7 +37,8 @@ export class AuthorizedComponent implements OnInit {
        */
       if (!this.code) {
         const randomState: string = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        window.location.href = 'http://localhost:5000/oauth/authorize?response_type=code&client_id=gateway-client&state=' + randomState;
+        const redirectUrl = encodeURI('http://localhost:4200/authorized');
+        window.location.href = 'http://localhost:5000/oauth/authorize?response_type=code&client_id=gateway-client&redirect_url=' + redirectUrl + '&state=' + randomState;
         return false;
       } else {
         this.exchangeToken();
@@ -65,7 +66,7 @@ export class AuthorizedComponent implements OnInit {
     } catch (e) {
       console.error(e);
     }
-    this.router.navigate(['error'],  { queryParams: { errorMsg }});
+    this.router.navigate(['error'], {queryParams: {errorMsg}});
   }
 
   handleUserData(jwtToken: JwtToken): void {

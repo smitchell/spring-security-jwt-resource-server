@@ -21,6 +21,7 @@ import {CanDeactivateGuard} from './directives/can-component-deactivate';
 import {TokenInterceptor} from './components/auth/token.interceptor';
 import { AuthorizedComponent } from './pages/authorized/authorized.component';
 import { ErrorComponent } from './pages/error/error.component';
+import {CookieService} from 'ngx-cookie-service';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { ErrorComponent } from './pages/error/error.component';
   ],
   providers: [
     CanDeactivateGuard,
+    CookieService,
     { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]

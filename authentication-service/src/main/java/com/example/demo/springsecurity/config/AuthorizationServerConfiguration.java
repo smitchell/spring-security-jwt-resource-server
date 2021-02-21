@@ -6,20 +6,28 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
@@ -35,14 +43,19 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private static final String KEY_STORE_PASSWORD = "example-pass";
     private static final String KEY_ALIAS = "example-oauth-jwt";
     private static final String JWK_KID = "example-key-id";
-
+    private final boolean jwtEnabled;
+    private final AuthenticationManager authenticationManager;
 
     private final ConsumerService consumerService;
 
     @Autowired
     public AuthorizationServerConfiguration(
-            final ConsumerService consumerService) {
+            final AuthenticationConfiguration authenticationConfiguration,
+            final ConsumerService consumerService,
+            @Value("${security.oauth2.authorizationserver.jwt.enabled:true}") boolean jwtEnabled) throws Exception {
+        this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
         this.consumerService = consumerService;
+        this.jwtEnabled = jwtEnabled;
     }
 
     @Override
@@ -51,10 +64,17 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     }
 
     @Override
-    public void configure(AuthorizationServerEndpointsConfigurer configurer) {
-        configurer
-                .tokenStore(tokenStore())
-                .accessTokenConverter(accessTokenConverter());
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
+        // @formatter:off
+        endpoints
+                .authenticationManager(this.authenticationManager)
+                .tokenStore(tokenStore());
+
+        if (this.jwtEnabled) {
+            endpoints
+                    .accessTokenConverter(accessTokenConverter());
+        }
+        // @formatter:on
     }
 
     @Override
@@ -64,13 +84,23 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public TokenStore tokenStore() {
-        return new JwtTokenStore(accessTokenConverter());
+        if (this.jwtEnabled) {
+            return new JwtTokenStore(accessTokenConverter());
+        } else {
+            return new InMemoryTokenStore();
+        }
     }
 
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         Map<String, String> customHeaders = Collections.singletonMap("kid", JWK_KID);
-        return new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
+        JwtAccessTokenConverter converter = new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
+
+        DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
+        accessTokenConverter.setUserTokenConverter(new SubjectAttributeUserTokenConverter());
+        converter.setAccessTokenConverter(accessTokenConverter);
+
+        return converter;
     }
 
     @Bean
