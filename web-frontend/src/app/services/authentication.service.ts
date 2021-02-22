@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
 import jwt_decode from 'jwt-decode';
-import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +27,7 @@ export class AuthenticationService {
     const token = sessionStorage.getItem('token');
     if (token) {
       const decoded: any = jwt_decode(token);
-      return decoded.sub;
+      return decoded.user_name;
     }
     return null;
   }

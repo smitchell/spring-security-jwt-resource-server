@@ -94,7 +94,6 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         JwtAccessTokenConverter converter = new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
 
         DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
-        accessTokenConverter.setUserTokenConverter(new SubjectAttributeUserTokenConverter());
         converter.setAccessTokenConverter(accessTokenConverter);
 
         return converter;

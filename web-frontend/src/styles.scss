@@ -1,4 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
+html, body { height: 100%; width: 100%}
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-card-header-text {
+  margin-left: 0px !important;
+}
+
+.mat-form-field {
+  width: 95%;
+}
+
+.mat-input-element:disabled,
+.mat-form-field-type-mat-native-select.mat-form-field-disabled .mat-form-field-infix::after {
+  color: rgba(0, 0, 0, .77);
+}
+
+.mat-form-field-appearance-outline.mat-form-field-disabled .mat-form-field-label {
+  color: rgba(11, 99, 6, .99);
+}
+
+.mat-card {
+  width: 90%;
+}
