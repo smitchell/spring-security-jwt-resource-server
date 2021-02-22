@@ -13,16 +13,15 @@ import {LogoutComponent} from './pages/logout/logout.component';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { HeaderComponent } from './components/header/header.component';
-import { FooterComponent } from './components/footer/footer.component';
+import {HeaderComponent} from './components/header/header.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import {MatInputModule} from '@angular/material/input';
 import {CanDeactivateGuard} from './directives/can-component-deactivate';
 import {TokenInterceptor} from './components/auth/token.interceptor';
-import { AuthorizedComponent } from './pages/authorized/authorized.component';
-import { ErrorComponent } from './pages/error/error.component';
+import {AuthorizedComponent} from './pages/authorized/authorized.component';
+import {ErrorComponent} from './pages/error/error.component';
 import {CookieService} from 'ngx-cookie-service';
-import { ToastrModule } from 'ngx-toastr';
+import {ToastrModule} from 'ngx-toastr';
 
 @NgModule({
   declarations: [
@@ -30,7 +29,6 @@ import { ToastrModule } from 'ngx-toastr';
     HomeComponent,
     LogoutComponent,
     HeaderComponent,
-    FooterComponent,
     AuthorizedComponent,
     ErrorComponent,
   ],
