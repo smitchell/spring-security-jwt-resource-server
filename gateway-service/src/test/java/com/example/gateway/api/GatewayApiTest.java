@@ -42,8 +42,8 @@ public class GatewayApiTest {
     }
 
     @Test
-    @WithMockUser
-    public void shouldReturnMessageOnGatwayMessageEndpoint() throws Exception {
+    @WithMockUser("john")
+    public void shouldReturnMessageOnGatewayMessageEndpoint() throws Exception {
         ResultMatcher ok = MockMvcResultMatchers.status()
                 .isOk();
 

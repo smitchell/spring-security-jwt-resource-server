@@ -27,14 +27,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .cors()
                 .and()
-            .authorizeRequests()
-                .antMatchers("/actuator/**", "/api/exchangeToken**").permitAll()
-                .and()
-            .authorizeRequests((authorizeRequests) ->
-                    authorizeRequests
-                            .antMatchers(HttpMethod.GET, "/api/**").hasAuthority("SCOPE_trust")
-                            .anyRequest().authenticated()
-            )
+            .authorizeRequests(authorize -> {
+                authorize.antMatchers("/actuator/**", "/api/exchangeToken**").permitAll();
+                authorize.antMatchers(HttpMethod.GET, "/api/**").hasAuthority("SCOPE_trust");
+                authorize.anyRequest().authenticated();
+            })
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         // @formatter:on
     }

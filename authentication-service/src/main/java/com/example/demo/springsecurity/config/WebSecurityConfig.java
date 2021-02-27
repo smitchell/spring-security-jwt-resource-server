@@ -24,28 +24,28 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .requestMatchers()
-                .antMatchers("/login", "/logout", "/oauth/authorize")
-                .and()
-            .authorizeRequests()
-                .mvcMatchers("/.well-known/jwks.json").permitAll()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-                .loginPage("/login")
-                .permitAll()
-                .defaultSuccessUrl("http://localhost:4200/authorized", true)
-                .and()
-            .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .logoutSuccessUrl("http://localhost:4200/")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-                .and()
-            .csrf()
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
+                .requestMatchers(requestMatcher -> {
+                    requestMatcher.antMatchers("/login", "/logout", "/oauth/authorize");
+                })
+                .authorizeRequests(authorize -> {
+                    authorize.mvcMatchers("/.well-known/jwks.json").permitAll();
+                    authorize.anyRequest().authenticated();
+                })
+                .formLogin(formLogin -> {
+                    formLogin.loginPage("/login").permitAll();
+                    formLogin.defaultSuccessUrl("http://localhost:4200/authorized", true);
+                })
+                .logout(logout -> {
+                    logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+                    logout.logoutSuccessUrl("http://localhost:4200/");
+                    logout.invalidateHttpSession(true);
+                    logout.deleteCookies("JSESSIONID");
+                    logout.permitAll();
+                })
+                .csrf(csrf -> {
+                    csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+                    csrf.ignoringRequestMatchers((request) -> "/introspect".equals(request.getRequestURI()));
+                });
     }
 
 }
