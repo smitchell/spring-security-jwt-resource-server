@@ -16,7 +16,6 @@ node {
 war.dependsOn 'npm_run_build'
 
 war {
-  from '$buildDir/dist' // adds a file-set to the root of the archive
   webAppDirName = 'dist/web-frontend' // override src/main/webapp
   webXml = file('web.xml') // copies a file to WEB-INF/web.xml
 }
