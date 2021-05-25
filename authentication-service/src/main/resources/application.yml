@@ -25,11 +25,3 @@ management:
       exposure:
         include: '*'
 
-  security:
-    oauth2:
-      client:
-        client-id: gateway-client
-        client-secret: client-secret
-      authorizationserver:
-        jwt:
-          enabled: true
