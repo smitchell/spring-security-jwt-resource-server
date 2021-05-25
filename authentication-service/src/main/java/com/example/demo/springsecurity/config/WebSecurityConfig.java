@@ -29,8 +29,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 })
                 .authorizeRequests(authorize -> {
                     authorize.mvcMatchers("/.well-known/jwks.json").permitAll();
-                    authorize.anyRequest().authenticated();
                 })
+                .authorizeRequests().anyRequest().authenticated()
+                .and()
                 .formLogin(formLogin -> {
                     formLogin.loginPage("/login").permitAll();
                     formLogin.defaultSuccessUrl("http://localhost:4200/authorized", true);

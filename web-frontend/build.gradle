@@ -1,0 +1,32 @@
+
+plugins {
+  id 'war'
+  id "com.moowork.node" version "1.2.0"
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+node {
+  version = '16.2.0'
+  npmVersion = '7.13.0'
+  download = true
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  providedCompile 'javax.servlet:servlet-api:2.5'
+  providedCompile 'org.apache.tomcat:tomcat-jsp-api:7.0.55'
+}
+
+war.dependsOn 'npm_run_build'
+
+war {
+  from '$buildDir/dist' // adds a file-set to the root of the archive
+  webAppDirName = 'dist/web-frontend' // override src/main/webapp
+  webXml = file('web.xml') // copies a file to WEB-INF/web.xml
+}
+
