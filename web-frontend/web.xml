@@ -5,5 +5,5 @@
 
 <web-app>
  <display-name>web-frontend</display-name>
- <description>This is an example of wrapping an Angular application in a WAR file with Gradel</description>
+ <description>This is an example of wrapping an Angular application in a WAR file with Gradle</description>
 </web-app>
