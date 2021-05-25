@@ -13,15 +13,6 @@ node {
   download = true
 }
 
-repositories {
-  mavenCentral()
-}
-
-dependencies {
-  providedCompile 'javax.servlet:servlet-api:2.5'
-  providedCompile 'org.apache.tomcat:tomcat-jsp-api:7.0.55'
-}
-
 war.dependsOn 'npm_run_build'
 
 war {
