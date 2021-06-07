@@ -1,27 +1,34 @@
 # WebFrontend
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.6.
+This project is the frontend for this security demonstration. It requires the other two services in this projects parent to be running.
 
-## Development server
+If everything is working correctly, the Angular application detects that you are not signed in and redirects your browser to the login page.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
+# Building
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Run gradle from the root of this project.
 
-## Build
+```
+./gradlew build  
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+# Running
 
-## Running unit tests
+You can run the native angular application or run it from the Spring Boot wrapper.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Serving Angular
 
-## Running end-to-end tests
+```
+cd src/main/webapp
+ng build
+ng serve
+```
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+## Launching Spring Boot
+```
+./gradlew build
+cd /build/libs
+java -jar web-frontend-0.0.1-SNAPSHOT.jar 
+```
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
