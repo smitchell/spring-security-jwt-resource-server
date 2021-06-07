@@ -48,3 +48,5 @@ Thumbs.db
 /build/
 /dist/
 /.gradle/
+/src/main/webapp/dist/
+/src/main/webapp/node_modules/
