@@ -1,6 +1,6 @@
 # WebFrontend
 
-This project is the frontend for this security demonstration. It requires the other two servcies in this projects parent to be running.
+This project is the frontend for this security demonstration. It requires the other two services in this projects parent to be running.
 
 If everything is working correctly, the Angular application detects that you are not signed in and redirects your browser to the login page.
 
