@@ -34,11 +34,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin(formLogin -> {
                     formLogin.loginPage("/login").permitAll();
-                    formLogin.defaultSuccessUrl("http://localhost:4200/authorized", true);
+                    formLogin.defaultSuccessUrl("http://localhost:4200/authorized", false);
                 })
                 .logout(logout -> {
                     logout.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-                    logout.logoutSuccessUrl("http://localhost:4200/");
+                    logout.logoutSuccessUrl("http://localhost:4200");
                     logout.invalidateHttpSession(true);
                     logout.deleteCookies("JSESSIONID");
                     logout.permitAll();

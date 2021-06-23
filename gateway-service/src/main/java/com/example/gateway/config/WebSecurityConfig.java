@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -20,6 +21,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         this.jwkSetUri = jwkSetUri;
     }
 
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers(
+                "/actuator/**",
+                "/api/exchangeToken?**");
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -28,8 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .cors()
                 .and()
             .authorizeRequests(authorize -> {
-                authorize.antMatchers("/actuator/**", "/api/exchangeToken**").permitAll();
-                authorize.antMatchers(HttpMethod.GET, "/api/**").hasAuthority("SCOPE_trust");
+                authorize.antMatchers("/actuator/**", "/api/exchangeToken**").anonymous();
                 authorize.anyRequest().authenticated();
             })
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);

@@ -17,6 +17,11 @@ paths:
           schema:
             type: string
           required: true
+        - in: query
+          name: state
+          schema:
+            type: string
+          required: true
       responses:
         '200':
           description: The jwt token
