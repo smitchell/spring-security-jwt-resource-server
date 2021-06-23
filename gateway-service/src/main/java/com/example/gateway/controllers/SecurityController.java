@@ -1,5 +1,6 @@
 package com.example.gateway.controllers;
 
+import com.example.gateway.config.TrustedRestTemplateFactory;
 import com.example.gateway.models.IntrospectToken;
 import com.example.gateway.models.JwtToken;
 import lombok.extern.slf4j.Slf4j;
@@ -26,46 +27,38 @@ public class SecurityController {
 
     private final String resourceClientId;
 
-    private final String resourceClientSecret;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public SecurityController(
             @Value("${resource-client-id}") final String resourceClientId,
-            @Value("${resource-client-secret}") final String resourceClientSecret,
-            @Value("${authorization-server-url}") final String authenticationServerUrl
+            @Value("${authorization-server-url}") final String authenticationServerUrl,
+            TrustedRestTemplateFactory trustedRestTemplateFactory
     ) {
         this.authenticationServerUrl = authenticationServerUrl;
         this.resourceClientId = resourceClientId;
-        this.resourceClientSecret = resourceClientSecret;
+        this.restTemplate = trustedRestTemplateFactory.getObject();
     }
 
     public RestTemplate clientRestTemplate(RestTemplateBuilder builder) {
         return builder.basicAuthentication("gateway_client", "client_secret").build();
     }
 
-    public Optional<JwtToken> exchangeToken(final String authorizationCode) {
+    public Optional<JwtToken> exchangeToken(final String authorizationCode, final String state) {
         log.info("exchangeToken <-- ".concat(authorizationCode));
-        final RestTemplate restTemplate = new RestTemplate();
 
-        // create auth credentials
-        final String authStr = this.resourceClientId.concat(":").concat(resourceClientSecret);
-        final String base64Creds = Base64.getEncoder().encodeToString(authStr.getBytes());
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic ".concat(base64Creds));
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/oauth/token"))
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("code", authorizationCode)
                 .queryParam("client_Id", resourceClientId)
-                .queryParam("state", RandomStringUtils.random(5));
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
+                .queryParam("state", state);
 
         try {
             log.info("exchangeToken POST to  ".concat(builder.toUriString()));
-            HttpEntity<JwtToken> response = restTemplate.exchange(
+            HttpEntity<JwtToken> response = this.restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.POST,
-                    entity,
+                    null,
                     JwtToken.class);
             if (response.getBody() != null) {
                 return Optional.of(response.getBody());
@@ -78,24 +71,15 @@ public class SecurityController {
 
     public Optional<IntrospectToken> introspectToken(String token) {
         log.info("introspectToken <-- ".concat(token));
-        final RestTemplate restTemplate = new RestTemplate();
 
-        // create auth credentials
-        final String authStr = this.resourceClientId.concat(":").concat(resourceClientSecret);
-        final String base64Creds = Base64.getEncoder().encodeToString(authStr.getBytes());
-        final HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic ".concat(base64Creds));
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/introspect"))
                 .queryParam("token", token);
-
-        HttpEntity<?> entity = new HttpEntity<>(headers);
-
         try {
             log.info("introspect GET to  ".concat(builder.toUriString()));
-            ResponseEntity<IntrospectToken> response = restTemplate.exchange(
+            ResponseEntity<IntrospectToken> response = this.restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.POST,
-                    entity,
+                    null,
                     IntrospectToken.class);
             if (response.getBody() != null) {
                 return Optional.of(response.getBody());

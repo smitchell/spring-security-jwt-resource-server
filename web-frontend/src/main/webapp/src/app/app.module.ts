@@ -22,6 +22,8 @@ import {AuthorizedComponent} from './pages/authorized/authorized.component';
 import {ErrorComponent} from './pages/error/error.component';
 import {CookieService} from 'ngx-cookie-service';
 import {ToastrModule} from 'ngx-toastr';
+import { LoginComponent } from './pages/login/login.component';
+import {EnvironmentsModule} from "../environments/environment-variables.module";
 
 @NgModule({
   declarations: [
@@ -31,11 +33,13 @@ import {ToastrModule} from 'ngx-toastr';
     HeaderComponent,
     AuthorizedComponent,
     ErrorComponent,
+    LoginComponent,
   ],
   imports: [
     AppRoutingModule,
     BrowserAnimationsModule,
     BrowserModule,
+    EnvironmentsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,

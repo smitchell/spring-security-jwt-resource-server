@@ -28,9 +28,9 @@ public class GatewayApi {
     }
 
     @GetMapping("/exchangeToken")
-    public ResponseEntity<String> exchangeToken(@RequestParam final String authorizationCode) {
+    public ResponseEntity<String> exchangeToken(@RequestParam final String authorizationCode, @RequestParam final String state) {
         log.info("authenticate <-- ".concat(authorizationCode));
-        Optional<JwtToken> tokenOption = securityController.exchangeToken(authorizationCode);
+        Optional<JwtToken> tokenOption = securityController.exchangeToken(authorizationCode, state);
         String token = null;
         if (tokenOption.isPresent()) {
             ObjectMapper mapper = new ObjectMapper();
