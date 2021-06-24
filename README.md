@@ -18,21 +18,31 @@ There are three projects:
 
 ## Sign-in
 The URL http://localhost:4200/ is the Home Component. It has an Angular Auth Guard defined that looks for a non-expired token in
-the browser's session storage. If none is found, it will redirect the user to the authentication service custom login page. After successfully authenticating,
-the user is redirected to the frontend Authorized page, which will redirect the user back to the authentication server to get an authorization code.
+the browser's session storage. If none is found, it will redirect the user to the authentication service custom login page. 
 
-Once the user is redirected back with an authorization code, the system calls the gateway to exchange if for an access token. 
-The gateway uses its client id and credenticals to call the /auth/token endpoint on the authorization server to exchange the auth code for a token.
-The gateway returns the access token to the the frontend. The frontend stores the access token is the browser's session storage, and then redirects
-the authenticated user to the home page. The authentication server is setup with a self-signed keystore that it uses to generate a JWT signing key
-to encryt the access token that it returns.
+This is the login flow:
+1.	The frontend posts the credentials to /oauth/authorize (instead of /login) to get back the authorization code.
+2.	The authorization service redirects to the /authorized page.
+3.	The authorized page posts the state and code parameters to the Gateway.
+4.	The Gateway posts the code to the Auth Service using its Oauth2 client credentials.
+5.	The auth service returns an encrypted JWT token.
+6.	The Gateway returns the token to the frontend.
+7.	The frontend caches the JWT token.
+
 
 On the home page is a button that calls a protected endpoint on the gateway service to get its build information and display it on the page.
-The frondend application includes an HTTP interceptor that automatically attaches an AUTHORIZATION header to all REST calls if a token is
-found in the browser's session storage.
 
-Finally, the gateway service is configured as a Spring Security Resource Server. I calls the "jwks" endpoint on the authentication service to get the signing key.
-Spring Security Jose uses the signing key to verify the JWT token.
+
+This is the resource server flow:
+1.	The user logs in
+2.	They system displays the homepage.
+3.	The user clicks the Load Gateway Message button.
+4.	The system HTTP Interceptor places the cached JWT token in the Authorization header of the GET to the Gateway.
+5.	The Gateway Spring Security resource service configuration uses the JWKS endpoint to decode and validate the JWT token.
+6.	The JWT token is verified.
+7.	Spring Security allows the request to reach the Gateway message endpoint.
+8.	The Gateway returns the message.
+9.	The Frontend displays the message on the web page.
 
 ```
 
