@@ -51,7 +51,8 @@ public class SecurityController {
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("code", authorizationCode)
                 .queryParam("client_Id", resourceClientId)
-                .queryParam("state", state);
+                .queryParam("state", state)
+                .queryParam("redirect_uri", "http://localhost:4200/authorized");
 
         try {
             log.info("exchangeToken POST to  ".concat(builder.toUriString()));
