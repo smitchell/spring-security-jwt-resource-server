@@ -45,7 +45,7 @@ export class AuthorizedComponent implements OnInit {
   exchangeToken(code: string, state: string): void {
     const expectedState =  localStorage.getItem('auth_code_state');
     localStorage.removeItem('auth_code_state')
-    console.log(`code = "${code}" state = "${state}"`);
+    console.log(`exchangeToken <--- code = "${code}" state = "${state}"`);
     if (expectedState !== state) {
       this.handleError({message: 'Invalid authorization code state'})
     }
