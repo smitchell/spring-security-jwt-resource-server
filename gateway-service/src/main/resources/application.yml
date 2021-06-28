@@ -10,7 +10,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:5000/.well-known/jwks.json
+          jwk-set-uri: http://localhost:8090/.well-known/jwks.json
     filter:
       order: -100
 
@@ -28,6 +28,6 @@ management:
 
 resource-client-id: gateway-client
 resource-client-secret: client-secret
-authorization-server-url: http://localhost:5000
+authorization-server-url: http://localhost:8090
 
 

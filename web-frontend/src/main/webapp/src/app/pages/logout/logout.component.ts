@@ -25,8 +25,8 @@ export class LogoutComponent implements OnInit {
     localStorage.clear();
     // this.cookieService.delete('JSESSIONID');
     this.cookieService.deleteAll();
-    const url = 'http://localhost:5000/logout';
-    window.location.href = 'http://localhost:5000/logout';
+    const url = 'http://localhost:8090/logout';
+    window.location.href = 'http://localhost:8090/logout';
 
   }
 }

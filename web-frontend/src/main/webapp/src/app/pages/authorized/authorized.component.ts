@@ -26,19 +26,6 @@ export class AuthorizedComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.exchangeToken(params.code, params.state);
-      /*
-        This is a demo workaround. The first time /oauth/authorize is called, it triggers the custom login form,
-        but only a sessionID is returned, not an authorization code. The second time it is called, using
-        a valid sessionID, the authorization code is returned.
-       */
-      // if (!this.code) {
-      //   const randomState: string = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      //   const redirectUrl = encodeURI('http://localhost:4200/authorized');
-      //   window.location.href = 'http://localhost:5000/oauth/authorize?response_type=code&client_id=gateway-client&redirect_url=' + redirectUrl + '&state=' + randomState;
-      //   return false;
-      // } else {
-      //   this.exchangeToken();
-      // }
     });
   }
 
