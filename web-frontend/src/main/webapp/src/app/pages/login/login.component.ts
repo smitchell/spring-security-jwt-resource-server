@@ -8,7 +8,7 @@ import {EnvVariables} from "../../../environments/environment-variables.token";
 })
 export class LoginComponent implements OnInit {
 
-  loginUrl: string;
+  loginUrl: string = '';
 
   constructor(
     @Inject(EnvVariables) public envVariables,

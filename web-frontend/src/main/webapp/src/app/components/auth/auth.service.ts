@@ -9,7 +9,7 @@ export class AuthService {
   ) {}
 
   public isAuthenticated(): boolean {
-    const tokens: string = sessionStorage.getItem('token');
+    const tokens = sessionStorage.getItem('token');
     if (tokens) {
       try {
         return true;

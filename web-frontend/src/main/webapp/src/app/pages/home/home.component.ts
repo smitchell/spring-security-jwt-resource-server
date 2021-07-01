@@ -24,7 +24,9 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     const token = sessionStorage.getItem('token');
     if (token) {
+      console.log('token = ' + token);
       this.decoded = jwt_decode(token);
+      console.log(JSON.stringify(this.decoded));
       this.decoded.authorities = this.replaceCommas(this.decoded.authorities);
       this.decoded.scope = this.replaceCommas(this.decoded.scope);
     }
@@ -83,7 +85,7 @@ export class HomeComponent implements OnInit {
       } else {
         console.log(`error status : ${error.status} ${error.statusText}`);
         switch (error.status) {
-          case 401:      // UNAUTHORIZED - Route them hope so the guard condition is re-appliced.
+          case 401:      // UNAUTHORIZED - Route them hope so the guard condition is re-applied.
             this.toastr.error('Your session has timed out. Please logout and sign back in.', 'UNAUTHORIZED');
             break;
           case 403:     // FORBIDDEN
