@@ -16,13 +16,6 @@ export class AuthorizedComponent implements OnInit {
   ) {
   }
 
-  private static getArray(attribute: any): string[] {
-    if (Array.isArray(attribute)) {
-      return attribute;
-    }
-    return [attribute];
-  }
-
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       this.exchangeToken(params.code, params.state);
