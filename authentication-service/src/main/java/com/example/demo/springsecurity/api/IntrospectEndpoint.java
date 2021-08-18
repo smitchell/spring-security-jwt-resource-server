@@ -20,7 +20,6 @@ import java.util.Map;
  *
  * This class adds ad-hoc support in order to better support the other samples in the repo.
  */
-@Slf4j
 @FrameworkEndpoint
 class IntrospectEndpoint {
     TokenStore tokenStore;
@@ -44,14 +43,7 @@ class IntrospectEndpoint {
         attributes.put("active", true);
         attributes.put("exp", accessToken.getExpiration().getTime());
         attributes.put("scope", String.join(" ", accessToken.getScope()));
-
         attributes.put("sub", authentication.getName());
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            log.info("introspect --> " + mapper.writeValueAsString(attributes));
-        } catch (IOException e) {
-            log.error("Object mapper error", e);
-        }
         return attributes;
     }
 }
