@@ -9,20 +9,22 @@
       <button mat-button color="primary" class="ml-2" mat-flat-button aria-label="Introspect Token" (click)="onIntrospectToken()"  >Introspect Token</button>
     </mat-card-actions>
     <mat-spinner style="margin:0 auto;" *ngIf="busy"></mat-spinner>
+    <mat-card-header><h2 style="margin:0 auto;">Decode Token</h2></mat-card-header>
     <mat-card-content *ngIf="decoded">
-      <mat-card-header><h2 style="margin:0 auto;">Decode Token</h2></mat-card-header>
-      <mat-form-field appearance="standard">
-        <mat-label>User Name</mat-label>
-        <input matInput disabled value="{{ decoded.user_name }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Authorities</mat-label>
-        <input matInput disabled value="{{ decoded.authorities }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Scope</mat-label>
-        <input matInput disabled value="{{ decoded.scope }}">
-      </mat-form-field>
+      <table width="100%" style="text-align: left">
+        <tr>
+          <th width="10%">User Name</th>
+          <td width="85%">{{ decoded.user_name }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Authorities</th>
+          <td width="85%">{{ decoded.authorities }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Scope</th>
+          <td width="85%">{{ decoded.scope }}</td>
+        </tr>
+      </table>
     </mat-card-content>
   </mat-card>
   <mat-card style="margin:2em;" *ngIf="gatewayMessage">
@@ -30,14 +32,16 @@
       <h2 style="margin:0 auto;">Gateway Message</h2>
     </mat-card-header>
     <mat-card-content>
-      <mat-form-field appearance="standard">
-        <mat-label>Version</mat-label>
-        <input matInput disabled value="{{ gatewayMessage.version }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Message</mat-label>
-        <input matInput disabled value="{{ gatewayMessage.message }}">
-      </mat-form-field>
+      <table width="100%" style="text-align: left">
+        <tr>
+          <th width="10%">Version</th>
+          <td width="85%">{{ gatewayMessage.version  }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Message</th>
+          <td width="85%">{{ gatewayMessage.message  }}</td>
+        </tr>
+      </table>
     </mat-card-content>
   </mat-card>
   <mat-card style="margin:2em;" *ngIf="introspectToken">
@@ -45,22 +49,24 @@
       <h2 style="margin:0 auto;">Token Introspection</h2>
     </mat-card-header>
     <mat-card-content>
-      <mat-form-field appearance="standard">
-        <mat-label>User Name</mat-label>
-        <input matInput disabled value="{{ introspectToken.sub }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Active</mat-label>
-        <input matInput disabled value="{{ introspectToken.active }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Scope</mat-label>
-        <input matInput disabled value="{{ introspectToken.scope }}">
-      </mat-form-field>
-      <mat-form-field appearance="standard">
-        <mat-label>Expires</mat-label>
-        <input matInput disabled value="{{ introspectToken.exp | date : 'medium' }}">
-      </mat-form-field>
+      <table width="100%" style="text-align: left">
+        <tr>
+          <th width="10%">User Name</th>
+          <td width="85%">{{ introspectToken.sub  }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Active</th>
+          <td width="85%">{{ introspectToken.active  }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Scope</th>
+          <td width="85%">{{ introspectToken.scope  }}</td>
+        </tr>
+        <tr>
+          <th width="10%">Expires</th>
+          <td width="85%">{{ introspectToken.exp | date : 'medium' }}</td>
+        </tr>
+      </table>
     </mat-card-content>
   </mat-card>
 </div>

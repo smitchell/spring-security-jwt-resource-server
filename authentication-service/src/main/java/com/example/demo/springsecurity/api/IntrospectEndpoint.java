@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Legacy Authorization Server (spring-security-oauth2) does not support any
@@ -44,7 +43,7 @@ class IntrospectEndpoint {
 
         attributes.put("active", true);
         attributes.put("exp", accessToken.getExpiration().getTime());
-        attributes.put("scope", accessToken.getScope().stream().collect(Collectors.joining(" ")));
+        attributes.put("scope", String.join(" ", accessToken.getScope()));
 
         attributes.put("sub", authentication.getName());
         ObjectMapper mapper = new ObjectMapper();

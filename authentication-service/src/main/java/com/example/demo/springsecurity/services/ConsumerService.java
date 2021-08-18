@@ -13,7 +13,7 @@ public class ConsumerService implements ClientDetailsService {
 
     @Override
     @Transactional
-    public ClientDetails loadClientByClientId(String clientId) {
+    public ClientDetails loadClientByClientId(final String clientId) {
         // Return this no matter what clientId is passed in.
         Consumer consumer = new Consumer();
         consumer.setScopeCsv("read,write,trust");

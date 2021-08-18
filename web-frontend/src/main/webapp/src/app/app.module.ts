@@ -24,6 +24,7 @@ import {CookieService} from 'ngx-cookie-service';
 import {ToastrModule} from 'ngx-toastr';
 import { LoginComponent } from './pages/login/login.component';
 import {EnvironmentsModule} from "../environments/environment-variables.module";
+import {MaterialModule} from "./material.module";
 
 @NgModule({
   declarations: [
@@ -43,15 +44,8 @@ import {EnvironmentsModule} from "../environments/environment-variables.module";
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatCardModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatProgressSpinnerModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    MaterialModule
   ],
   providers: [
     CanDeactivateGuard,

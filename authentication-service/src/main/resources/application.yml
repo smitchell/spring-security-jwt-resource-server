@@ -25,3 +25,8 @@ management:
       exposure:
         include: '*'
 
+security:
+  oauth2:
+    authorizationserver:
+      jwt:
+        enabled: true

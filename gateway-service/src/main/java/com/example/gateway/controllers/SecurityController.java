@@ -4,7 +4,6 @@ import com.example.gateway.config.TrustedRestTemplateFactory;
 import com.example.gateway.models.IntrospectToken;
 import com.example.gateway.models.JwtToken;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Base64;
 import java.util.Optional;
 
 @Slf4j
@@ -27,7 +25,7 @@ public class SecurityController {
 
     private final String resourceClientId;
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate trustedRestTemplate;
 
     @Autowired
     public SecurityController(
@@ -37,7 +35,7 @@ public class SecurityController {
     ) {
         this.authenticationServerUrl = authenticationServerUrl;
         this.resourceClientId = resourceClientId;
-        this.restTemplate = trustedRestTemplateFactory.getObject();
+        this.trustedRestTemplate = trustedRestTemplateFactory.getObject();
     }
 
     public RestTemplate clientRestTemplate(RestTemplateBuilder builder) {
@@ -46,7 +44,6 @@ public class SecurityController {
 
     public Optional<JwtToken> exchangeToken(final String authorizationCode, final String state) {
         log.info("exchangeToken <-- ".concat(authorizationCode));
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/oauth/token"))
                 .queryParam("grant_type", "authorization_code")
                 .queryParam("code", authorizationCode)
@@ -54,12 +51,30 @@ public class SecurityController {
                 .queryParam("state", state)
                 .queryParam("redirect_uri", "http://localhost:4200/authorized");
 
+        return getAuthToken(builder, this.trustedRestTemplate);
+    }
+
+    public Optional<JwtToken> refreshToken(final JwtToken jwtToken) {
+        log.info("refreshToken");
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/oauth/token"))
+                .queryParam("grant_type", "refresh_token")
+                .queryParam("client_Id", resourceClientId)
+                .queryParam("refresh_token", jwtToken.getRefresh_token());
+
+        return getAuthToken(builder, this.trustedRestTemplate);
+    }
+
+    private Optional<JwtToken> getAuthToken(UriComponentsBuilder builder, RestTemplate restTemplate) {
         try {
-            log.info("exchangeToken POST to  ".concat(builder.toUriString()));
-            HttpEntity<JwtToken> response = this.restTemplate.exchange(
+            log.info("getAuthToken POST to  ".concat(builder.toUriString()));
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add("Content-Type", "application/x-www-form-urlencoded");
+            HttpEntity<HttpHeaders> httpEntity = new HttpEntity(httpHeaders);
+            ResponseEntity<JwtToken> response = restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.POST,
-                    null,
+                    httpEntity,
                     JwtToken.class);
             if (response.getBody() != null) {
                 return Optional.of(response.getBody());
@@ -77,7 +92,7 @@ public class SecurityController {
                 .queryParam("token", token);
         try {
             log.info("introspect GET to  ".concat(builder.toUriString()));
-            ResponseEntity<IntrospectToken> response = this.restTemplate.exchange(
+            ResponseEntity<IntrospectToken> response = this.trustedRestTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.POST,
                     null,

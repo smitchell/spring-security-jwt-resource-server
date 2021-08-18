@@ -42,14 +42,13 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private static final String JWK_KID = "example-key-id";
     private final boolean jwtEnabled;
     private final AuthenticationManager authenticationManager;
-
     private final ConsumerService consumerService;
 
     @Autowired
     public AuthorizationServerConfiguration(
             final AuthenticationConfiguration authenticationConfiguration,
             final ConsumerService consumerService,
-            @Value("${security.oauth2.authorizationserver.jwt.enabled:true}") boolean jwtEnabled) throws Exception {
+            @Value("${security.oauth2.authorizationserver.jwt.enabled:true}") final boolean jwtEnabled) throws Exception {
         this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
         this.consumerService = consumerService;
         this.jwtEnabled = jwtEnabled;
@@ -90,10 +89,10 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
-        Map<String, String> customHeaders = Collections.singletonMap("kid", JWK_KID);
-        JwtAccessTokenConverter converter = new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
+        final Map<String, String> customHeaders = Collections.singletonMap("kid", JWK_KID);
+        final JwtAccessTokenConverter converter = new JwtCustomHeadersAccessTokenConverter(customHeaders, keyPair());
 
-        DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
+        final DefaultAccessTokenConverter accessTokenConverter = new DefaultAccessTokenConverter();
         converter.setAccessTokenConverter(accessTokenConverter);
 
         return converter;
@@ -101,14 +100,14 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
 
     @Bean
     public KeyPair keyPair() {
-        ClassPathResource ksFile = new ClassPathResource(KEY_STORE_FILE);
-        KeyStoreKeyFactory ksFactory = new KeyStoreKeyFactory(ksFile, KEY_STORE_PASSWORD.toCharArray());
+        final ClassPathResource ksFile = new ClassPathResource(KEY_STORE_FILE);
+        final KeyStoreKeyFactory ksFactory = new KeyStoreKeyFactory(ksFile, KEY_STORE_PASSWORD.toCharArray());
         return ksFactory.getKeyPair(KEY_ALIAS);
     }
 
     @Bean
     public JWKSet jwkSet() {
-        RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair().getPublic()).keyUse(KeyUse.SIGNATURE)
+        final RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair().getPublic()).keyUse(KeyUse.SIGNATURE)
                 .algorithm(JWSAlgorithm.RS256)
                 .keyID(JWK_KID);
         return new JWKSet(builder.build());

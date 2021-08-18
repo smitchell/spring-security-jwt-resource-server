@@ -19,48 +19,6 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class GatewayApi {
 
-    private final SecurityController securityController;
-
-    @Autowired
-    public GatewayApi(
-            final SecurityController securityController) {
-        this.securityController = securityController;
-    }
-
-    @GetMapping("/exchangeToken")
-    public ResponseEntity<String> exchangeToken(@RequestParam final String authorizationCode, @RequestParam final String state) {
-        log.info("authenticate <-- ".concat(authorizationCode));
-        Optional<JwtToken> tokenOption = securityController.exchangeToken(authorizationCode, state);
-        String token = null;
-        if (tokenOption.isPresent()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                token = mapper.writeValueAsString(tokenOption.get());
-            } catch (JsonProcessingException e) {
-                log.warn(e.getMessage());
-            }
-        }
-
-        return ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(token);
-    }
-
-    @GetMapping("/introspectToken")
-    public ResponseEntity<IntrospectToken> introspectToken(@RequestHeader("Authorization") String authorizationHeader) {
-        log.info("introspectToken <-- ".concat(authorizationHeader));
-        String token = authorizationHeader.split(" ")[1];
-        Optional<IntrospectToken> optionalToken = securityController.introspectToken(token);
-        return optionalToken.map(introspectToken -> ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(introspectToken)).orElseGet(() -> ResponseEntity
-                .ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(null));
-    }
-
     @GetMapping("/gatewayMessage")
     public GatewayMessage getGatewayMessage() {
         return new GatewayMessage("1.0", "The gateway says hello");

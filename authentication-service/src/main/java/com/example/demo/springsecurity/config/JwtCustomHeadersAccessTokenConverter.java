@@ -12,16 +12,15 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
 @Configuration
 public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverter {
 
-    private Map<String, String> customHeaders = new HashMap<>();
-    private JsonParser objectMapper = JsonParserFactory.create();
-    final RsaSigner signer;
+    private final Map<String, String> customHeaders;
+    private final JsonParser objectMapper = JsonParserFactory.create();
+    private final RsaSigner signer;
 
     public JwtCustomHeadersAccessTokenConverter(Map<String, String> customHeaders, KeyPair keyPair) {
         super();
@@ -38,9 +37,8 @@ public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverte
         } catch (Exception ex) {
             throw new IllegalStateException("Cannot convert access token to JSON", ex);
         }
-        String token = JwtHelper.encode(content, this.signer, this.customHeaders)
+        return JwtHelper.encode(content, this.signer, this.customHeaders)
             .getEncoded();
-        return token;
     }
 
 }

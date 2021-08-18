@@ -17,8 +17,9 @@ spring:
 logging:
   level:
     ROOT: ERROR
-    org.springframework.security: TRACE
-    org.springframework.web: DEBUG
+    org.springframework.security: WARN
+    org.springframework.web: WARN
+    com.example.gateway: DEBUG
 
 management:
   endpoints:
