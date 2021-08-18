@@ -6,7 +6,6 @@ import com.example.gateway.models.JwtToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,7 +19,8 @@ import java.util.Optional;
 @Slf4j
 @Component
 public class SecurityController {
-
+    private static final String grant_type = "grant_type";
+    private static final String client_Id = "client_Id";
     private final String authenticationServerUrl;
 
     private final String resourceClientId;
@@ -38,16 +38,12 @@ public class SecurityController {
         this.trustedRestTemplate = trustedRestTemplateFactory.getObject();
     }
 
-    public RestTemplate clientRestTemplate(RestTemplateBuilder builder) {
-        return builder.basicAuthentication("gateway_client", "client_secret").build();
-    }
-
     public Optional<JwtToken> exchangeToken(final String authorizationCode, final String state) {
         log.info("exchangeToken <-- ".concat(authorizationCode));
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/oauth/token"))
-                .queryParam("grant_type", "authorization_code")
+                .queryParam(grant_type, "authorization_code")
                 .queryParam("code", authorizationCode)
-                .queryParam("client_Id", resourceClientId)
+                .queryParam(client_Id, resourceClientId)
                 .queryParam("state", state)
                 .queryParam("redirect_uri", "http://localhost:4200/authorized");
 
@@ -58,8 +54,8 @@ public class SecurityController {
         log.info("refreshToken");
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(this.authenticationServerUrl.concat("/oauth/token"))
-                .queryParam("grant_type", "refresh_token")
-                .queryParam("client_Id", resourceClientId)
+                .queryParam(grant_type, "refresh_token")
+                .queryParam(client_Id, resourceClientId)
                 .queryParam("refresh_token", jwtToken.getRefresh_token());
 
         return getAuthToken(builder, this.trustedRestTemplate);
@@ -70,7 +66,7 @@ public class SecurityController {
             log.info("getAuthToken POST to  ".concat(builder.toUriString()));
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add("Content-Type", "application/x-www-form-urlencoded");
-            HttpEntity<HttpHeaders> httpEntity = new HttpEntity(httpHeaders);
+            HttpEntity<HttpHeaders> httpEntity = new HttpEntity<>(httpHeaders);
             ResponseEntity<JwtToken> response = restTemplate.exchange(
                     builder.toUriString(),
                     HttpMethod.POST,
