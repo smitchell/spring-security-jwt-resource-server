@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -43,14 +44,17 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
     private final boolean jwtEnabled;
     private final AuthenticationManager authenticationManager;
     private final ConsumerService consumerService;
+    private final LdapUserDetailsService ldapUserDetailsService;
 
     @Autowired
     public AuthorizationServerConfiguration(
             final AuthenticationConfiguration authenticationConfiguration,
+            final LdapUserDetailsService ldapUserDetailsService,
             final ConsumerService consumerService,
             @Value("${security.oauth2.authorizationserver.jwt.enabled:true}") final boolean jwtEnabled) throws Exception {
         this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
         this.consumerService = consumerService;
+        this.ldapUserDetailsService = ldapUserDetailsService;
         this.jwtEnabled = jwtEnabled;
     }
 
@@ -64,6 +68,7 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
         // @formatter:off
         endpoints
                 .authenticationManager(this.authenticationManager)
+                .userDetailsService(ldapUserDetailsService)
                 .tokenStore(tokenStore());
 
         if (this.jwtEnabled) {
