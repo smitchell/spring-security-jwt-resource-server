@@ -13,15 +13,15 @@ Start the project:
 mvn spring-boot:run
 ```
 
-Open a web browser and past this URL:
+Open a web browser and paste this URL:
      
 [http://localhost:8090/oauth/authorize?response_type=code&client_id=gateway-client&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fauthorized](http://localhost:8090/oauth/authorize?response_type=code&client_id=gateway-client&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2Fauthorized)
 
-You will be prompted to login, and then the returned redirect URL will contain the "code" query parameter. Copy the code to the clipboard.    
+You will be prompted to log in, and then the returned redirect URL will contain the "code" query parameter. Copy the code to the clipboard.    
 
 2 - Exchange the auth code for a token
 
-Export the client credentials and the auth code copied above above.
+Export the client credentials and the auth code copied above.
 
 ```
 export CLIENT_ID=gateway-client
