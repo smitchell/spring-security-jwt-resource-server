@@ -18,7 +18,7 @@ public class ConsumerService implements ClientDetailsService {
         Consumer consumer = new Consumer();
         consumer.setScopeCsv("read,write,trust");
         consumer.setAutoApproveCsv("true");
-        consumer.setAuthorizedGrantTypesCsv("refresh_token,authorization_code");
+        consumer.setAuthorizedGrantTypesCsv("password,refresh_token,authorization_code");
         consumer.setAccessTokenValiditySeconds(3600);
         consumer.setRefreshTokenValiditySeconds(86400);
         consumer.setClientId(clientId);
